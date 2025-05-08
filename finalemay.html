@@ -1,0 +1,4633 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Diabetes Progress Note TEDC</title>
+    <style>
+      body {
+        font-size: 14px;
+        min-width: 1000px;
+        max-width: 1000px;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 15px;
+        line-height: 1.6;
+        color: #333;
+      }
+
+      h1 {
+        color: #2b73b7;
+        border-bottom: 2px solid #2b73b7;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+      }
+
+      h2 {
+        color: #2b73b7;
+        margin-top: 25px;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      h3 {
+        color: #3a6ea5;
+        margin-top: 20px;
+        margin-bottom: 10px;
+      }
+
+      h4 {
+        color: #4a7eb1;
+        margin-top: 15px;
+        margin-bottom: 8px;
+        font-size: 0.95em;
+      }
+
+      .tab {
+        overflow: hidden;
+        border: 1px solid #ccc;
+        background-color: #f1f1f1;
+        border-radius: 5px 5px 0 0;
+      }
+
+      .tab button {
+        background-color: inherit;
+        float: left;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 10px 16px;
+        transition: 0.3s;
+        font-weight: 500;
+      }
+
+      .tab button:hover {
+        background-color: #ddd;
+      }
+
+      .tab button.active {
+        background-color: #2b73b7;
+        color: white;
+      }
+
+      .tabcontent {
+        display: none;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-top: none;
+        border-radius: 0 0 5px 5px;
+        background-color: white;
+      }
+
+      .section {
+        margin-bottom: 15px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        border-left: 4px solid #2b73b7;
+      }
+
+      .checkboxes {
+        column-count: 2;
+        column-gap: 20px;
+        margin-top: 10px;
+      }
+
+      @media (max-width: 600px) {
+        .checkboxes {
+          column-count: 1;
+        }
+      }
+
+      .tab-navigation {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 10px;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  z-index: 100;
+  display: flex;
+  justify-content: space-between; /* This will push buttons to opposite sides */
+}
+
+.nav-button.prev {
+  background: #6c757d;
+  order: 1; /* Ensure it stays on the left */
+  margin-right: auto; /* Push next button to the right */
+}
+
+.nav-button.next {
+  background: #2b73b7;
+  order: 2; /* Ensure it stays on the right */
+  margin-left: auto; /* Push prev button to the left */
+}
+
+.nav-button.prev:hover {
+  background: #5a6268;
+}
+
+.nav-button.next:hover {
+  background: #1a5a8f;
+}
+
+      label {
+        display: block;
+        margin: 0 5px;
+        cursor: pointer;
+
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      input[type="number"],
+      input[type="text"],
+      select {
+        padding: 8px;
+        margin-left: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      textarea {
+        width: 100%;
+        height: 300px;
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        resize: vertical;
+      }
+
+      .input-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .input-group label {
+        width: 180px;
+
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .bmi-result {
+        color: #2b73b7;
+        font-weight: bold;
+        margin-left: 10px;
+      }
+
+      .medication-group {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        background-color: white;
+      }
+
+      .medication-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: center;
+      }
+
+      .medication-name {
+        width: 200px;
+        min-width: 200px;
+      }
+
+      .medication-subtype-container {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .medication-subtype {
+        width: 150px;
+      }
+
+      .medication-dose {
+        width: 100px;
+      }
+
+      .medication-freq {
+        width: 150px;
+      }
+
+      .medication-status {
+        width: 150px;
+        min-width: 150px;
+      }
+
+      .add-med-btn {
+        background: #4caf50;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        cursor: pointer;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: background 0.3s;
+      }
+
+      .add-med-btn:hover {
+        background: #3e8e41;
+      }
+
+      .remove-med-btn {
+        background: #ff0000;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 3px;
+        transition: background 0.3s;
+      }
+
+      .remove-med-btn:hover {
+        background: #cc0000;
+      }
+
+      .glp1ra-option {
+        font-weight: bold;
+        color: #2b73b7;
+      }
+
+      .complication-group {
+        margin-left: 10px;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+      }
+
+      .complication-note {
+        width: 150px; /* Narrower width */
+        height: 30px; /* Very short height */
+        margin-left: 20px;
+        margin-top: 5px;
+        display: none; /* Hidden by default */
+        font-size: 0.9em; /* Smaller text */
+        padding: 4px; /* Tighter padding */
+      }
+
+      /* Add these new styles (keep existing ones) */
+      .complication-group label {
+        transition: opacity 0.3s;
+
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .complication-group label[disabled] {
+        opacity: 0.6;
+        pointer-events: none;
+        cursor: not-allowed;
+      }
+
+      .family-member {
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #f5f5f5;
+        border-radius: 5px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .family-history-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.family-history-details {
+  margin-top: 10px;
+}
+
+.family-history-textarea {
+  width: 100%;
+  height: 60px;
+  margin-top: 5px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+      .unit-conversion {
+        font-size: 0.8em;
+        color: #666;
+        margin-left: 5px;
+      }
+
+      .investigation-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+
+      .investigation-row label {
+        width: 120px;
+
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .investigation-input {
+        width: 80px;
+        margin-right: 5px;
+      }
+
+      .disabled-checkbox {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      .renal-function {
+        background-color: #f0f8ff;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+      }
+
+      .acr-category {
+        font-weight: bold;
+        margin-left: 10px;
+        color: #2b73b7;
+      }
+
+      .egfr-result {
+        font-weight: bold;
+        color: #2b73b7;
+      }
+
+      .thyroid-function {
+        background-color: #fff0f5;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+      }
+
+      .liver-function {
+        background-color: #f0fff0;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+      }
+
+      .hematology {
+        background-color: #fffaf0;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+      }
+
+      .lipid-profile {
+        background-color: #f5f0ff;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+      }
+
+      .unit-toggle {
+        margin-left: 5px;
+        font-size: 0.8em;
+        color: #2b73b7;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+
+      .anti-lipid-option {
+        font-weight: bold;
+        color: #8a2be2;
+      }
+
+      .glycemic-status {
+        margin-left: 15px;
+      }
+
+      .insulin-therapy {
+        display: none;
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f5f5f5;
+        border-radius: 5px;
+      }
+
+      .insulin-row {
+        margin-bottom: 15px;
+      }
+
+      .insulin-option {
+        margin-right: 15px;
+      }
+
+      input[type="radio"],
+      input[type="checkbox"] {
+        margin-right: 8px;
+        transform: scale(1.1);
+      }
+
+      .radio-group,
+      .checkbox-group {
+        margin: 10px 0;
+      }
+
+      #progressNote {
+        font-family: "Courier New", Courier, monospace;
+        background-color: #f8f8f8;
+        border: 1px solid #ddd;
+        padding: 15px;
+        line-height: 1.5;
+      }
+
+      .vaccine-checkbox {
+        margin-left: 20px;
+      }
+
+      .vaccine-dose {
+        margin-left: 10px;
+        display: none;
+      }
+
+      .levothyroxine-duration {
+        margin-left: 10px;
+        display: none;
+      }
+
+      .button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  align-items: center; /* This ensures all buttons align vertically */
+}
+
+button.generate, 
+button.copy-btn, 
+button.clear-btn {
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 12px;
+  transition: background 0.3s;
+  height: 36px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button.generate {
+  background: #2b73b7;
+  color: white;
+}
+
+button.generate:hover {
+  background: #1a5a8f;
+}
+
+button.copy-btn {
+  background: #4caf50;
+  color: white;
+}
+
+button.copy-btn:hover {
+  background: #3e8e41;
+}
+
+button.clear-btn {
+  background: #f44336;
+  color: white;
+}
+
+button.clear-btn:hover {
+  background: #d32f2f;
+}
+
+      .glycemic-control-section {
+        flex: 1;
+        min-width: 300px;
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+      }
+
+      .glycemic-control-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .glycemic-control-title {
+        font-weight: bold;
+        color: #2b73b7;
+      }
+
+      .glycemic-control-done {
+        display: flex;
+        align-items: center;
+      }
+
+      .glycemic-control-done label {
+        margin-right: 10px;
+
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .smbg-values {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .smbg-value-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .smbg-value-label {
+        margin-bottom: 5px;
+
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      @media (max-width: 768px) {
+        .glycemic-control-container {
+          flex-direction: column;
+        }
+
+        .glycemic-control-section {
+          width: 100%;
+        }
+      }
+
+      /* New styles for SMBG and CGM sections */
+      .glycemic-control-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .smbg-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .smbg-label {
+        width: 150px;
+
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .cgm-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 10px;
+      }
+
+      .cgm-stat {
+        display: flex;
+        align-items: center;
+      }
+
+      .cgm-stat label {
+        margin-right: 5px;
+
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .cgm-stat input {
+        width: 60px;
+      }
+
+      @media (max-width: 768px) {
+        .input-group label {
+          width: 140px;
+
+          font-weight: 500;
+          font-size: 14px;
+        }
+
+        .medication-row {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .medication-name,
+        .medication-subtype,
+        .medication-dose,
+        .medication-freq,
+        .medication-status {
+          width: 100%;
+          margin-bottom: 8px;
+        }
+
+        .smbg-row {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+
+      .medication-instruction {
+        display: none !important;
+      }
+
+      .diabetes-specification {
+  width: 200px;
+  height: 30px;
+  margin-left: 10px;
+  font-size: 12px;
+  padding: 5px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.checkboxes label {
+  break-inside: avoid-column;
+  margin-bottom: 10px;
+  display: inline-block;
+  width: 100%;
+}
+
+.lab-group {
+  margin-bottom: 10px;
+}
+
+.lab-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.lab-name {
+  width: 200px;
+  min-width: 150px;
+}
+
+.lab-result {
+  width: 100px;
+}
+
+.lab-units {
+  width: 100px;
+}
+    </style>
+  </head>
+  <body>
+    <h1>Diabetes Progress Note by Dr. Waleed Alzahrani Taif Diabetic center</h1>
+    <div class="tab">
+      <button class="tablinks active" onclick="openTab(event, 'History')">History</button>
+      <button class="tablinks" onclick="openTab(event, 'Examination')">Examination</button>
+      <button class="tablinks" onclick="openTab(event, 'Investigations')">Investigations</button>
+      <button class="tablinks" onclick="openTab(event, 'AssessmentPlan')">Assessment & Plan</button>
+    </div>
+    
+    <div class="tab-navigation">
+      <button class="nav-button prev">Back</button>
+      <button class="nav-button next">Next</button>
+    </div>
+    <!-- History Tab -->
+    <div class="tabcontent" id="History" style="display: block">
+      <h2>History</h2>
+      <div class="section">
+        <div class="input-group">
+          <label
+            >Age:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input id="patientAge" onchange="calculateEGFR()" type="number" />
+        </div>
+        <div class="input-group">
+          <label
+            >Gender:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <select id="patientGender" onchange="handleGenderChange()">
+            <option value="">Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+        <!-- Female-specific details section -->
+        <div class="section" id="femaleDetailsSection" style="display: none">
+          <h3>Female-Specific Details</h3>
+          <div class="checkboxes">
+            <label
+              ><input id="isSingle" type="checkbox" /> Single<br /><textarea
+                class="medication-instruction"
+                placeholder="Instructions..."
+              ></textarea>
+            </label>
+            <label
+              ><input id="isMarried" type="checkbox" /> Married<br /><textarea
+                class="medication-instruction"
+                placeholder="Instructions..."
+              ></textarea>
+            </label>
+            <label
+              ><input id="isPregnant" type="checkbox" /> Pregnant<br /><textarea
+                class="medication-instruction"
+                placeholder="Instructions..."
+              ></textarea>
+            </label>
+            <label
+              ><input id="isLactating" type="checkbox" />
+              Lactating<br /><textarea
+                class="medication-instruction"
+                placeholder="Instructions..."
+              ></textarea>
+            </label>
+            <label
+              ><input id="planningPregnancy" type="checkbox" /> Planning
+              Pregnancy</label
+            >
+          </div>
+        </div>
+        <div class="input-group">
+          <label
+            >Duration of Diagnosis:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input
+            id="diagnosisDuration"
+            placeholder="e.g., 5 years"
+            type="text"
+          />
+        </div>
+        <div class="input-group">
+          <label
+            >Diabetes History:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <textarea
+            id="diabetesHistory"
+            placeholder="Enter detailed diabetes history here..."
+            style="width: 100%; height: 100px; margin-left: 5px"
+          ></textarea>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Diabetes Type</h3>
+        <div class="checkboxes" style="column-count: 2;">
+          <label>
+            <input name="diabetesType" type="radio" value="Type 1" onchange="toggleDiabetesTypeFields()">
+            Type 1 diabetes<br>
+            <textarea class="medication-instruction" placeholder="Instructions..."></textarea>
+          </label>
+          <label>
+            <input name="diabetesType" type="radio" value="Type 2" onchange="toggleDiabetesTypeFields()">
+            Type 2 diabetes<br>
+            <textarea class="medication-instruction" placeholder="Instructions..."></textarea>
+          </label>
+          <label>
+            <input name="diabetesType" type="radio" value="GDM" onchange="toggleDiabetesTypeFields()">
+            Gestational diabetes (GDM)<br>
+            <textarea class="medication-instruction" placeholder="Instructions..."></textarea>
+          </label>
+          <label>
+            <input name="diabetesType" type="radio" value="MODY" onchange="toggleDiabetesTypeFields()">
+            MODY
+            <textarea id="modySpecification" class="diabetes-specification" placeholder="Specify MODY type..." style="display: none;"></textarea>
+            <br>
+            <textarea class="medication-instruction" placeholder="Instructions..."></textarea>
+          </label>
+          <label style="column-span: 2; display: inline-block; width: 100%;">
+            <input name="diabetesType" type="radio" value="Other" onchange="toggleDiabetesTypeFields()">
+            Other:
+            <textarea id="diabetesTypeOther" class="diabetes-specification" placeholder="Specify other type..." style="display: none;"></textarea>
+            <br>
+            <textarea class="medication-instruction" placeholder="Instructions..."></textarea>
+          </label>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Other Medical History</h3>
+        <div class="checkboxes">
+          <label
+            ><input class="otherHistory" type="checkbox" value="Hypertension" />
+            Hypertension</label
+          >
+          <label
+            ><input class="otherHistory" type="checkbox" value="Dyslipidemia" />
+            Dyslipidemia</label
+          >
+          <label
+            ><input class="otherHistory" type="checkbox" value="Obesity" />
+            Obesity</label
+          >
+          <label
+            ><input
+              class="otherHistory"
+              type="checkbox"
+              value="Hypothyroidism"
+            />
+            Hypothyroidism</label
+          >
+          <label
+            ><input class="otherHistory" type="checkbox" value="Osteoporosis" />
+            Osteoporosis</label
+          >
+          <label
+            ><input class="otherHistory" type="checkbox" value="Other" /> Other:
+            <input id="otherHistoryText" type="text" /><br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Diabetes Complications</h3>
+        <div class="complication-group">
+          <label>
+            <input
+              class="complication"
+              id="noComplicationsCheckbox"
+              onchange="toggleComplications(this)"
+              type="checkbox"
+              value="No complications"
+            />
+            No complications
+            <br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <h4>Microvascular Complications</h4>
+          <div class="checkboxes">
+            <label
+              ><input
+                class="complication micro"
+                onchange="toggleComplicationNote(this)"
+                type="checkbox"
+                value="Retinopathy"
+              />
+              Retinopathy</label
+            >
+            <textarea
+              class="complication-note"
+              id="retinopathyNote"
+              placeholder="Add notes about retinopathy..."
+            ></textarea>
+            <label
+              ><input
+                class="complication micro"
+                onchange="toggleComplicationNote(this)"
+                type="checkbox"
+                value="Nephropathy"
+              />
+              Nephropathy</label
+            >
+            <textarea
+              class="complication-note"
+              id="nephropathyNote"
+              placeholder="Add notes about nephropathy..."
+            ></textarea>
+            <label
+              ><input
+                class="complication micro"
+                onchange="toggleComplicationNote(this)"
+                type="checkbox"
+                value="Neuropathy"
+              />
+              Neuropathy</label
+            >
+            <textarea
+              class="complication-note"
+              id="neuropathyNote"
+              placeholder="Add notes about neuropathy..."
+            ></textarea>
+            <label
+              ><input
+                class="complication micro"
+                onchange="toggleComplicationNote(this)"
+                type="checkbox"
+                value="Diabetic foot"
+              />
+              Diabetic foot</label
+            >
+            <textarea
+              class="complication-note"
+              id="diabeticFootNote"
+              placeholder="Add notes about diabetic foot..."
+            ></textarea>
+            <label
+              ><input
+                class="complication micro"
+                onchange="toggleComplicationNote(this)"
+                type="checkbox"
+                value="Gastroparesis"
+              />
+              Gastroparesis</label
+            >
+            <textarea
+              class="complication-note"
+              id="gastroparesisNote"
+              placeholder="Add notes about gastroparesis..."
+            ></textarea>
+            <label
+              ><input
+                class="complication micro"
+                onchange="toggleComplicationNote(this)"
+                type="checkbox"
+                value="Erectile Dysfunction"
+              />
+              Erectile Dysfunction</label
+            >
+            <textarea
+              class="complication-note"
+              id="erectileDysfunctionNote"
+              placeholder="Add notes about erectile dysfunction..."
+            ></textarea>
+          </div>
+          <h4>Macrovascular Complications</h4>
+          <div class="checkboxes">
+            <label
+              ><input
+                class="complication macro"
+                onchange="toggleComplicationNote(this)"
+                type="checkbox"
+                value="CAD"
+              />
+              Coronary Artery Disease</label
+            >
+            <textarea
+              class="complication-note"
+              id="cadNote"
+              placeholder="Add notes about CAD..."
+            ></textarea>
+            <label
+              ><input
+                class="complication macro"
+                onchange="toggleComplicationNote(this)"
+                type="checkbox"
+                value="Heart Failure"
+              />
+              Heart Failure</label
+            >
+            <textarea
+              class="complication-note"
+              id="heartFailureNote"
+              placeholder="Add notes about heart failure..."
+            ></textarea>
+            <label
+              ><input
+                class="complication macro"
+                onchange="toggleComplicationNote(this)"
+                type="checkbox"
+                value="PAD"
+              />
+              Peripheral Artery Disease</label
+            >
+            <textarea
+              class="complication-note"
+              id="padNote"
+              placeholder="Add notes about PAD..."
+            ></textarea>
+            <label
+              ><input
+                class="complication macro"
+                onchange="toggleComplicationNote(this)"
+                type="checkbox"
+                value="Stroke"
+              />
+              Stroke/TIA</label
+            >
+            <textarea
+              class="complication-note"
+              id="strokeNote"
+              placeholder="Add notes about stroke/TIA..."
+            ></textarea>
+          </div>
+          <h4>Other Complications</h4>
+          <div class="checkboxes">
+            <label
+              ><input
+                class="complication other"
+                onchange="toggleComplicationNote(this)"
+                type="checkbox"
+                value="DKA"
+              />
+              DKA</label
+            >
+            <textarea
+              class="complication-note"
+              id="dkaNote"
+              placeholder="Add notes about DKA..."
+            ></textarea>
+            <label
+              ><input
+                class="complication other"
+                onchange="toggleComplicationNote(this)"
+                type="checkbox"
+                value="HHS"
+              />
+              HHS</label
+            >
+            <textarea
+              class="complication-note"
+              id="hhsNote"
+              placeholder="Add notes about HHS..."
+            ></textarea>
+            <label
+              ><input
+                class="complication other"
+                onchange="toggleComplicationNote(this)"
+                type="checkbox"
+                value="Hypoglycemia"
+              />
+              Severe Hypoglycemia</label
+            >
+            <textarea
+              class="complication-note"
+              id="hypoglycemiaNote"
+              placeholder="Add notes about hypoglycemia..."
+            ></textarea>
+            <label
+              ><input
+                class="complication other"
+                onchange="toggleComplicationNote(this)"
+                type="checkbox"
+                value="Other"
+              />
+              Other: <input id="complicationOther" type="text" /><br /><textarea
+                class="medication-instruction"
+                placeholder="Instructions..."
+              ></textarea>
+            </label>
+            <textarea
+              class="complication-note"
+              id="otherComplicationNote"
+              placeholder="Add notes about other complication..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Hypoglycemia History</h3>
+        <div class="radio-group">
+          <h4>Frequency:</h4>
+          <label
+            ><input
+              name="hypoFrequency"
+              type="radio"
+              value="Rare (1-3/month)"
+            />
+            Rare (1-3/month)</label
+          >
+          <label
+            ><input
+              name="hypoFrequency"
+              type="radio"
+              value="Frequent (1-3/week)"
+            />
+            Frequent (1-3/week)</label
+          >
+          <label
+            ><input
+              name="hypoFrequency"
+              type="radio"
+              value="Most of the Days"
+            />
+            Most of the Days</label
+          >
+        </div>
+        <div class="radio-group">
+          <h4>Presence of Symptoms:</h4>
+          <label
+            ><input name="hypoSymptoms" type="radio" value="Yes" /> Yes</label
+          >
+          <label
+            ><input name="hypoSymptoms" type="radio" value="No" /> No</label
+          >
+        </div>
+        <div class="checkbox-group">
+          <h4>Timing of Hypoglycemia:</h4>
+          <div class="checkboxes" style="column-count: 3">
+            <label
+              ><input
+                class="hypoTiming"
+                type="checkbox"
+                value="Pre-breakfast"
+              />
+              Pre-breakfast</label
+            >
+            <label
+              ><input class="hypoTiming" type="checkbox" value="Pre-lunch" />
+              Pre-lunch</label
+            >
+            <label
+              ><input class="hypoTiming" type="checkbox" value="Pre-dinner" />
+              Pre-dinner</label
+            >
+            <label
+              ><input
+                class="hypoTiming"
+                type="checkbox"
+                value="Post-breakfast"
+              />
+              Post-breakfast</label
+            >
+            <label
+              ><input class="hypoTiming" type="checkbox" value="Post-lunch" />
+              Post-lunch</label
+            >
+            <label
+              ><input class="hypoTiming" type="checkbox" value="Post-dinner" />
+              Post-dinner</label
+            >
+            <label
+              ><input class="hypoTiming" type="checkbox" value="Late Night" />
+              Late Night</label
+            >
+            <label
+              ><input
+                class="hypoTiming"
+                type="checkbox"
+                value="Early Morning"
+              />
+              Early Morning</label
+            >
+            <label
+              ><input class="hypoTiming" type="checkbox" value="Mid night" />
+              Mid night</label
+            >
+            <label
+              ><input
+                class="hypoTiming"
+                type="checkbox"
+                value="Post Correction Doses"
+              />
+              Post Correction Doses</label
+            >
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Family History of Diabetes</h3>
+        <div id="familyHistoryContainer">
+          <div class="family-member">
+            <select class="family-relation">
+              <option value="">Select family member</option>
+              <option value="Mother">Mother</option>
+              <option value="Father">Father</option>
+              <option value="Sibling">Sibling</option>
+              <option value="Grandparent">Grandparent</option>
+              <option value="Aunt/Uncle">Aunt/Uncle</option>
+              <option value="Child">Child</option>
+            </select>
+            <select class="family-diabetes-type">
+              <option value="">Type of diabetes</option>
+              <option value="Type 1">Type 1</option>
+              <option value="Type 2">Type 2</option>
+              <option value="GDM">GDM</option>
+              <option value="Other">Other</option>
+            </select>
+            <input class="family-age-diagnosis" placeholder="Age at diagnosis" type="text" />
+            <button class="remove-med-btn" onclick="removeFamilyMember(this)">
+              Remove
+            </button>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-start; margin-top: 10px;">
+          <button class="add-med-btn" onclick="addFamilyMember()" style="width: auto;">
+            + Add Family Member
+          </button>
+        </div>
+        <div style="margin-top: 15px;">
+          <label>Additional Family History Details:</label>
+          <textarea 
+            id="familyHistoryDetails" 
+            placeholder="Enter any additional family history details here..." 
+            style="width: 100%; height: 60px; margin-top: 5px;"
+          ></textarea>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Current Medications</h3>
+        <div id="medication-container">
+          <div class="medication-group">
+            <div class="medication-row">
+              <select
+                class="medication-name"
+                onchange="updateMedicationOptions(this)"
+              >
+                <option value="">Select Medication</option>
+                <option value="Metformin">Metformin</option>
+                <option value="Insulin">Insulin</option>
+                <option value="GLP-1 RA">GLP-1 RA</option>
+                <option value="SGLT2i">SGLT2 Inhibitors</option>
+                <option value="DPP-4i">DPP-4 Inhibitors</option>
+                <option value="Sulfonylurea">Sulfonylurea</option>
+                <option value="TZD">TZD (Thiazolidinediones)</option>
+                <option value="ARB">ARB (Angiotensin Receptor Blocker)</option>
+                <option value="ACEi">ACE Inhibitor</option>
+                <option value="CCB">Calcium Channel Blocker</option>
+                <option value="Beta Blocker">Beta Blocker</option>
+                <option value="Thiazide">Thiazide Diuretic</option>
+                <option value="Aspirin">Aspirin</option>
+                <option value="Clopidogrel">Clopidogrel</option>
+                <option value="Anti-Lipid">Anti-Lipid Medications</option>
+                <option value="Levothyroxine">Levothyroxine</option>
+                <option value="Supplements">Supplements</option>
+                <option value="Other">Other</option></select
+              ><input
+                class="medication-other"
+                placeholder="Specify other"
+                style="display: none; width: 150px; margin-left: 5px"
+                type="text"
+              />
+              <div class="medication-subtype-container">
+                <select class="medication-subtype" style="display: none">
+                  <option value="">Select Type</option>
+                </select>
+              </div>
+              <input class="medication-dose" placeholder="Dose" type="text" />
+              <select class="medication-freq">
+                <option value="">Frequency</option>
+                <option value="Once daily">Once daily</option>
+                <option value="Twice daily">Twice daily</option>
+                <option value="Three times daily">Three times daily</option>
+                <option value="With meals">With meals</option>
+                <option value="At bedtime">At bedtime</option>
+                <option value="Every 2 weeks">Every 2 weeks</option>
+                <option value="Not Tolerated">Not Tolerated</option>
+                <option value="patient Refuse">patient Refuse</option>
+                <option value="Other">Other</option>
+              </select>
+              <textarea
+                class="medication-instruction"
+                placeholder="Medication instructions..."
+              ></textarea>
+              <button class="remove-med-btn" onclick="removeMedication(this)">
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button class="add-med-btn" onclick="addMedication()">
+          + Add Medication
+        </button>
+      </div>
+      <div class="section glycemic-control">
+        <h3>Glycemic Control</h3>
+        <div class="glycemic-control-container">
+          <!-- SMBG Section -->
+          <div class="glycemic-control-section">
+            <div class="glycemic-control-header">
+              <div class="glycemic-control-title">SMBG</div>
+              <div class="glycemic-control-done">
+                <label
+                  >Done:<br /><textarea
+                    class="medication-instruction"
+                    placeholder="Instructions..."
+                  ></textarea>
+                </label>
+                <input id="smbgYes" name="smbgDone" type="radio" value="Yes" />
+                <label for="smbgYes"
+                  >Yes<br /><textarea
+                    class="medication-instruction"
+                    placeholder="Instructions..."
+                  ></textarea>
+                </label>
+                <input id="smbgNo" name="smbgDone" type="radio" value="No" />
+                <label for="smbgNo"
+                  >No<br /><textarea
+                    class="medication-instruction"
+                    placeholder="Instructions..."
+                  ></textarea>
+                </label>
+              </div>
+            </div>
+            <div id="smbgFields">
+              <div class="smbg-values">
+                <div class="smbg-value-group">
+                  <div class="smbg-value-label">Fasting Blood Sugar:</div>
+                  <select id="fbsRange">
+                    <option value="">Select range</option>
+                    <option value="&lt;80">&lt;80</option>
+                    <option value="80-130">80-130</option>
+                    <option value="130-180">130-180</option>
+                    <option value="180-230">180-230</option>
+                    <option value="230-280">230-280</option>
+                    <option value="280-320">280-320</option>
+                    <option value="&gt;320">&gt;320</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-top: 10px">
+                <div class="smbg-value-label">Post-prandial:</div>
+                <div class="smbg-values">
+                  <div class="smbg-value-group">
+                    <div class="smbg-value-label">Breakfast:</div>
+                    <select id="postBreakfastRange">
+                      <option value="">Select range</option>
+                      <option value="&lt;80">&lt;80</option>
+                      <option value="80-130">80-130</option>
+                      <option value="130-180">130-180</option>
+                      <option value="180-230">180-230</option>
+                      <option value="230-280">230-280</option>
+                      <option value="280-320">280-320</option>
+                      <option value="&gt;320">&gt;320</option>
+                    </select>
+                  </div>
+                  <div class="smbg-value-group">
+                    <div class="smbg-value-label">Lunch:</div>
+                    <select id="postLunchRange">
+                      <option value="">Select range</option>
+                      <option value="&lt;80">&lt;80</option>
+                      <option value="80-130">80-130</option>
+                      <option value="130-180">130-180</option>
+                      <option value="180-230">180-230</option>
+                      <option value="230-280">230-280</option>
+                      <option value="280-320">280-320</option>
+                      <option value="&gt;320">&gt;320</option>
+                    </select>
+                  </div>
+                  <div class="smbg-value-group">
+                    <div class="smbg-value-label">Dinner:</div>
+                    <select id="postDinnerRange">
+                      <option value="">Select range</option>
+                      <option value="&lt;80">&lt;80</option>
+                      <option value="80-130">80-130</option>
+                      <option value="130-180">130-180</option>
+                      <option value="180-230">180-230</option>
+                      <option value="230-280">230-280</option>
+                      <option value="280-320">280-320</option>
+                      <option value="&gt;320">&gt;320</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- CGM Section -->
+          <div class="glycemic-control-section">
+            <div class="glycemic-control-header">
+              <div class="glycemic-control-title">CGM</div>
+              <div class="glycemic-control-done">
+                <label
+                  >Done:<br /><textarea
+                    class="medication-instruction"
+                    placeholder="Instructions..."
+                  ></textarea>
+                </label>
+                <input id="cgmYes" name="cgmDone" type="radio" value="Yes" />
+                <label for="cgmYes"
+                  >Yes<br /><textarea
+                    class="medication-instruction"
+                    placeholder="Instructions..."
+                  ></textarea>
+                </label>
+                <input id="cgmNo" name="cgmDone" type="radio" value="No" />
+                <label for="cgmNo"
+                  >No<br /><textarea
+                    class="medication-instruction"
+                    placeholder="Instructions..."
+                  ></textarea>
+                </label>
+              </div>
+            </div>
+            <div id="cgmFields">
+              <div class="cgm-stats">
+                <div class="cgm-stat">
+                  <label
+                    >Active Time:<br /><textarea
+                      class="medication-instruction"
+                      placeholder="Instructions..."
+                    ></textarea>
+                  </label>
+                  <input
+                    id="activeTime"
+                    max="100"
+                    min="0"
+                    style="width: 60px"
+                    type="number"
+                  />%
+                </div>
+                <div class="cgm-stat">
+                  <label
+                    >TAR:<br /><textarea
+                      class="medication-instruction"
+                      placeholder="Instructions..."
+                    ></textarea>
+                  </label>
+                  <input
+                    id="tar"
+                    max="100"
+                    min="0"
+                    style="width: 60px"
+                    type="number"
+                  />%
+                </div>
+                <div class="cgm-stat">
+                  <label
+                    >TIR:<br /><textarea
+                      class="medication-instruction"
+                      placeholder="Instructions..."
+                    ></textarea>
+                  </label>
+                  <input
+                    id="tir"
+                    max="100"
+                    min="0"
+                    style="width: 60px"
+                    type="number"
+                  />%
+                </div>
+                <div class="cgm-stat">
+                  <label
+                    >TBR:<br /><textarea
+                      class="medication-instruction"
+                      placeholder="Instructions..."
+                    ></textarea>
+                  </label>
+                  <input
+                    id="tbr"
+                    max="100"
+                    min="0"
+                    style="width: 60px"
+                    type="number"
+                  />%
+                </div>
+                <div class="cgm-stat">
+                  <label
+                    >Variability:<br /><textarea
+                      class="medication-instruction"
+                      placeholder="Instructions..."
+                    ></textarea>
+                  </label>
+                  <input
+                    id="variability"
+                    max="100"
+                    min="0"
+                    style="width: 60px"
+                    type="number"
+                  />%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section" id="insulinTherapySection" style="display: none">
+        <h3>Insulin Therapy Details</h3>
+        <div class="insulin-row">
+          <label
+            >Does Patient Carb Count?<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <div style="display: inline-block; margin-left: 10px">
+            <label class="insulin-option"
+              ><input name="carbCounting" type="radio" value="Yes" /> Yes</label
+            >
+            <label class="insulin-option"
+              ><input name="carbCounting" type="radio" value="No" /> No</label
+            >
+          </div>
+        </div>
+        <div class="insulin-row">
+          <label
+            >ICR (Insulin-to-Carb Ratio):<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <span class="bmi-result" id="icrResult">Not calculated</span>
+          <input
+            id="customICR"
+            placeholder="Custom ICR (e.g., 1:10)"
+            style="margin-left: 10px"
+            type="text"
+          />
+        </div>
+        <div class="insulin-row">
+          <label
+            >Insulin Sensitivity Factor (ISF):<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <span class="bmi-result" id="isfResult">Not calculated</span>
+          <input
+            id="customISF"
+            placeholder="Custom ISF (e.g., 1:50)"
+            style="margin-left: 10px"
+            type="text"
+          />
+        </div>
+        <div class="insulin-row">
+          <label
+            >Total Daily Dose (TDD):<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <span class="bmi-result" id="tddResult">Not calculated</span>
+        </div>
+        <div class="insulin-row">
+          <label
+            >Timing of injection:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <div style="display: inline-block; margin-left: 10px">
+            <label class="insulin-option"
+              ><input
+                name="injectionTiming"
+                type="radio"
+                value="Before Meal Time"
+              />
+              Before Meal Time</label
+            >
+            <label class="insulin-option"
+              ><input
+                name="injectionTiming"
+                type="radio"
+                value="At Meal Time"
+              />
+              At Meal Time</label
+            >
+            <label class="insulin-option"
+              ><input
+                name="injectionTiming"
+                type="radio"
+                value="After Meal Time"
+              />
+              After Meal Time</label
+            >
+          </div>
+        </div>
+        <div class="insulin-row">
+          <label
+            >Technique and Site of Injection:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <textarea
+            id="injectionTechnique"
+            style="width: 300px; height: 60px; margin-left: 10px"
+          ></textarea>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Screening History</h3>
+        <div class="radio-group">
+          <h4>Foot Screening:</h4>
+          <label
+            ><input name="footScreening" type="radio" value="Done" />
+            Done</label
+          >
+          <label
+            ><input name="footScreening" type="radio" value="Not Done" /> Not
+            Done</label
+          >
+        </div>
+        <div class="radio-group">
+          <h4>Retina Screening:</h4>
+          <label
+            ><input name="retinaScreening" type="radio" value="Done" />
+            Done</label
+          >
+          <label
+            ><input name="retinaScreening" type="radio" value="Not Done" /> Not
+            Done</label
+          >
+        </div>
+        <div class="radio-group">
+          <h4>Kidney Screening:</h4>
+          <label
+            ><input name="kidneyScreening" type="radio" value="Done" />
+            Done</label
+          >
+          <label
+            ><input name="kidneyScreening" type="radio" value="Not Done" /> Not
+            Done</label
+          >
+        </div>
+      </div>
+      <div class="section">
+        <h3>Lifestyle History</h3>
+        <div class="radio-group">
+          <h4>Smoking Status:</h4>
+          <label
+            ><input name="smokingStatus" type="radio" value="Smoker" />
+            Smoker</label
+          >
+          <label
+            ><input name="smokingStatus" type="radio" value="Ex-Smoker" />
+            Ex-Smoker</label
+          >
+          <label
+            ><input name="smokingStatus" type="radio" value="Non-Smoker" />
+            Non-Smoker</label
+          >
+        </div>
+        <div class="radio-group">
+          <h4>Adherence on Treatment:</h4>
+          <label
+            ><input name="treatmentAdherence" type="radio" value="Poor" />
+            Poor</label
+          >
+          <label
+            ><input name="treatmentAdherence" type="radio" value="Good" />
+            Good</label
+          >
+        </div>
+        <div class="radio-group">
+          <h4>Diet:</h4>
+          <label
+            ><input name="diet" type="radio" value="Poor" /> Poor<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <label
+            ><input name="diet" type="radio" value="Good" /> Good<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+        </div>
+        <div class="radio-group">
+          <h4>Physical Activity:</h4>
+          <label
+            ><input name="physicalActivity" type="radio" value="Active" />
+            Active</label
+          >
+          <label
+            ><input name="physicalActivity" type="radio" value="Inactive" />
+            Inactive</label
+          >
+        </div>
+        <div class="checkbox-group">
+          <h4>Vaccination Status:</h4>
+          <label class="vaccine-checkbox"
+            ><input
+              class="vaccine"
+              onchange="toggleDoseSelect(this)"
+              type="checkbox"
+              value="Herpes Zoster"
+            />
+            Herpes Zoster</label
+          >
+          <select class="vaccine-dose" id="herpesZosterDose">
+            <option value="1st dose">1st dose</option>
+            <option value="2nd dose">2nd dose</option>
+          </select>
+          <label class="vaccine-checkbox"
+            ><input class="vaccine" type="checkbox" value="Influenza Vaccine" />
+            Influenza Vaccine</label
+          >
+          <label class="vaccine-checkbox"
+            ><input class="vaccine" type="checkbox" value="RSV Vaccine" /> RSV
+            Vaccine</label
+          >
+          <label class="vaccine-checkbox"
+            ><input class="vaccine" type="checkbox" value="Not Vaccinated" />
+            Not Vaccinated</label
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Examination Tab -->
+    <div class="tabcontent" id="Examination">
+      <h2>Examination</h2>
+      <div class="section">
+        <div class="input-group">
+          <label
+            >Weight (kg):<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input
+            id="weight"
+            onchange="calculateBMI()"
+            step="0.1"
+            type="number"
+          />
+        </div>
+        <div class="input-group">
+          <label
+            >Height (cm):<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input
+            id="height"
+            onchange="calculateBMI()"
+            step="0.1"
+            type="number"
+          />
+        </div>
+        <div class="input-group">
+          <label
+            >BMI:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <span class="bmi-result" id="bmiResult">-</span>
+          <input id="bmi" type="hidden" />
+        </div>
+        <div class="input-group">
+          <label
+            >Blood Pressure:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input id="bp" placeholder="e.g., 120/80" type="text" />
+        </div>
+      </div>
+    </div>
+    <!-- Investigations Tab -->
+    <div class="tabcontent" id="Investigations">
+      <h2>Investigations</h2>
+      <div class="section">
+        <h3>Laboratory Results</h3>
+        <div class="investigation-row">
+          <label
+            >HbA1c (%):<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input
+            class="investigation-input"
+            id="hba1c"
+            step="0.1"
+            type="number"
+          />
+          <span class="unit-conversion" id="hba1c-mmol"></span>
+        </div>
+        <div class="investigation-row">
+          <label
+            >FBS:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input class="investigation-input" id="fbs" type="number" />
+          <select id="fbs-unit" onchange="convertGlucoseUnits()">
+            <option selected="" value="mmol/L">mmol/L</option>
+            <!-- Changed default -->
+            <option value="mg/dL">mg/dL</option>
+          </select>
+          <span class="unit-conversion" id="fbs-converted"></span>
+          <input type="hidden" id="fbs-converted-value">
+        </div>
+        <div class="investigation-row">
+          <label
+            >Creatinine:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input
+            class="investigation-input"
+            id="creatinine"
+            onchange="calculateEGFR()"
+            step="0.1"
+            type="number"
+          />
+          <select id="creatinine-unit" onchange="convertCreatinineUnits()">
+            <option selected="" value="μmol/L">μmol/L</option>
+            <!-- Changed default -->
+            <option value="mg/dL">mg/dL</option>
+          </select>
+          <span class="unit-conversion" id="creatinine-converted"></span>
+          <input type="hidden" id="creatinine-converted-value">
+        </div>
+        <div class="investigation-row">
+          <label
+            >eGFR (mL/min/1.73m²):<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <span class="egfr-result" id="egfr-result">-</span>
+          <input id="egfr" type="hidden" />
+        </div>
+        <div class="investigation-row">
+          <label
+            >ACR:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input
+            class="investigation-input"
+            id="acr"
+            onchange="updateACRCategory()"
+            type="number"
+          />
+          <select id="acr-unit" onchange="convertACRUnits()">
+            <option selected="" value="mg/mmol">mg/mmol</option>
+            <!-- Changed default -->
+            <option value="mg/g">mg/g</option>
+          </select>
+          <span class="unit-conversion" id="acr-converted"></span>
+          <span class="acr-category" id="acr-category"></span>
+          <input type="hidden" id="acr-converted-value">
+        </div>
+      </div>
+      <div class="liver-function">
+        <h4>Liver Function</h4>
+        <div class="investigation-row">
+          <label
+            >ALT (U/L):<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input
+            class="investigation-input"
+            id="alt"
+            onchange="calculateFIB4()"
+            type="number"
+          />
+        </div>
+        <div class="investigation-row">
+          <label
+            >AST (U/L):<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input
+            class="investigation-input"
+            id="ast"
+            onchange="calculateFIB4()"
+            type="number"
+          />
+        </div>
+        <div class="investigation-row">
+          <label
+            >Platelets:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input
+            class="investigation-input"
+            id="platelets"
+            onchange="calculateFIB4()"
+            type="number"
+          />
+          <!-- Note: Using same platelet input as hematology -->
+        </div>
+        <div class="investigation-row">
+          <label
+            >Age (years):<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input
+            class="investigation-input"
+            id="fib4-age"
+            onchange="calculateFIB4()"
+            type="number"
+            value=""
+          />
+          <!-- Will auto-fill from patient age -->
+        </div>
+        <div class="investigation-row">
+          <label
+            >FIB-4 Score:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <span class="bmi-result" id="fib4-score">-</span>
+          <span id="fib4-interpretation"></span>
+        </div>
+      </div>
+      <div class="hematology">
+        <h4>Hematology</h4>
+        <div class="investigation-row">
+          <label
+            >Hemoglobin:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input class="investigation-input" id="hb" step="0.1" type="number" />
+          <select id="hb-unit" onchange="convertHemoglobinUnits()">
+            <option value="g/dL">g/dL</option>
+            <option value="mmol/L">mmol/L</option>
+          </select>
+          <span class="unit-conversion" id="hb-converted"></span>
+        </div>
+        <div class="investigation-row">
+          <label
+            >Platelet Count:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <!-- New field -->
+          <input class="investigation-input" id="platelet" type="number" />
+          <span>x10<sup>9</sup>/L</span>
+        </div>
+      </div>
+      <div class="thyroid-function">
+        <h4>Thyroid Function</h4>
+        <div class="investigation-row">
+          <label
+            >TSH (mIU/L):<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input
+            class="investigation-input"
+            id="tsh"
+            step="0.01"
+            type="number"
+          />
+        </div>
+        <div class="investigation-row">
+          <label
+            >FT4:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input
+            class="investigation-input"
+            id="ft4"
+            step="0.01"
+            type="number"
+          />
+          <select id="ft4-unit" onchange="convertFT4Units()">
+            <option value="ng/dL">ng/dL</option>
+            <option value="pmol/L">pmol/L</option>
+          </select>
+          <span class="unit-conversion" id="ft4-converted"></span>
+        </div>
+        <div class="investigation-row">
+          <label
+            >FT3:<br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+          <input
+            class="investigation-input"
+            id="ft3"
+            step="0.01"
+            type="number"
+          />
+          <select id="ft3-unit" onchange="convertFT3Units()">
+            <option value="pg/mL">pg/mL</option>
+            <option value="pmol/L">pmol/L</option>
+          </select>
+          <span class="unit-conversion" id="ft3-converted"></span>
+        </div>
+      </div>
+      <div class="lipid-profile">
+        <h4>Lipid Profile</h4>
+        <div class="investigation-row">
+          <label>LDL:</label>
+          <input class="investigation-input" id="ldl" type="number" oninput="convertLipidUnits('ldl')">
+          <select id="ldl-unit" onchange="convertLipidUnits('ldl')">
+            <option value="mmol/L" selected>mmol/L</option>
+            <option value="mg/dL">mg/dL</option>
+          </select>
+          <span class="unit-conversion" id="ldl-converted"></span>
+          <input type="hidden" id="ldl-converted-value">
+        </div>
+        
+        <div class="investigation-row">
+          <label>HDL:</label>
+          <input class="investigation-input" id="hdl" type="number" oninput="convertLipidUnits('hdl')">
+          <select id="hdl-unit" onchange="convertLipidUnits('hdl')">
+            <option value="mmol/L" selected>mmol/L</option>
+            <option value="mg/dL">mg/dL</option>
+          </select>
+          <span class="unit-conversion" id="hdl-converted"></span>
+          <input type="hidden" id="hdl-converted-value">
+        </div>
+        
+        <div class="investigation-row">
+          <label>TG:</label>
+          <input class="investigation-input" id="tg" type="number" oninput="convertLipidUnits('tg')">
+          <select id="tg-unit" onchange="convertLipidUnits('tg')">
+            <option value="mmol/L" selected>mmol/L</option>
+            <option value="mg/dL">mg/dL</option>
+          </select>
+          <span class="unit-conversion" id="tg-converted"></span>
+          <input type="hidden" id="tg-converted-value">
+        </div>
+        
+        <div class="investigation-row">
+          <label>Total Cholesterol:</label>
+          <input class="investigation-input" id="totalChol" type="number" oninput="convertLipidUnits('totalChol')">
+          <select id="totalChol-unit" onchange="convertLipidUnits('totalChol')">
+            <option value="mmol/L" selected>mmol/L</option>
+            <option value="mg/dL">mg/dL</option>
+          </select>
+          <span class="unit-conversion" id="totalChol-converted"></span>
+          <input type="hidden" id="totalChol-converted-value">
+        </div>
+      </div>
+        <div class="section">
+          <h3>Additional Laboratory Tests</h3>
+          <div id="additionalLabsContainer">
+            <!-- Lab entries will be added here -->
+          </div>
+          <button class="add-med-btn" onclick="addLabTest()" style="margin-top: 10px;">
+            + Add Lab Test
+          </button>
+        </div>
+        <div class="section">
+          <h3>Radiology Reports</h3>
+          <textarea
+            id="radiology"
+            placeholder="Enter radiology findings"
+            style="width: 100%; height: 100px"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+    <!-- Assessment and Plan Tab -->
+    <div class="tabcontent" id="AssessmentPlan">
+      <h2>Assessment and Plan</h2>
+      <div class="section">
+        <h3>Assessment</h3>
+        <div class="glycemic-status">
+          <h4>Glycemic Status:</h4>
+          <label
+            ><input
+              name="glycemicStatus"
+              type="radio"
+              value="Controlled HbA1c"
+            />
+            Controlled HbA1c</label
+          >
+          <label
+            ><input
+              name="glycemicStatus"
+              type="radio"
+              value="Strict HbA1c/TIR with Frequent Hypoglycemia"
+            />
+            Strict HbA1c/TIR with Frequent Hypoglycemia</label
+          >
+          <label
+            ><input
+              name="glycemicStatus"
+              type="radio"
+              value="Reasonable HbA1c/TIR"
+            />
+            Reasonable HbA1c/TIR</label
+          >
+          <label
+            ><input
+              name="glycemicStatus"
+              type="radio"
+              value="Suboptimal HbA1c/TIR"
+            />
+            Suboptimal HbA1c/TIR</label
+          >
+          <label
+            ><input
+              name="glycemicStatus"
+              type="radio"
+              value="Improved HbA1c/TIR but Still Uncontrolled"
+            />
+            Improved HbA1c/TIR but Still Uncontrolled</label
+          >
+          <label
+            ><input
+              name="glycemicStatus"
+              type="radio"
+              value="Deteriorated HbA1c/TIR"
+            />
+            Deteriorated HbA1c/TIR</label
+          >
+        </div>
+      </div>
+      <div class="section">
+        <h3>Lifestyle Recommendations</h3>
+        <div class="checkboxes">
+          <label
+            ><input
+              class="lifestyle"
+              type="checkbox"
+              value="Dietary counseling"
+            />
+            Dietary counseling</label
+          >
+          <label
+            ><input class="lifestyle" type="checkbox" value="Exercise plan" />
+            Exercise plan</label
+          >
+          <label
+            ><input class="lifestyle" type="checkbox" value="Other" /> Other:
+            <input id="lifestyleOther" type="text" /><br /><textarea
+              class="medication-instruction"
+              placeholder="Instructions..."
+            ></textarea>
+          </label>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Doctor Recommendations</h3>
+        <textarea
+          id="doctorRecommendations"
+          placeholder="Enter doctor's recommendations here..."
+          style="width: 100%; height: 100px"
+        >
+        </textarea>
+      </div>
+      <div class="section">
+        <h3>Treatment Plan</h3>
+        <button class="add-med-btn" onclick="populateFromCurrentMeds()">
+          Copy Current Medications to Plan
+        </button>
+        <div id="newMeds-container">
+          <div class="medication-group">
+            <div class="medication-row">
+              <select
+                class="medication-name"
+                onchange="updateMedicationOptions(this)"
+              >
+                <option value="">Select Medication</option>
+                <option value="Metformin">Metformin</option>
+                <option value="Insulin">Insulin</option>
+                <option value="GLP-1 RA">GLP-1 RA</option>
+                <option value="SGLT2i">SGLT2 Inhibitors</option>
+                <option value="DPP-4i">DPP-4 Inhibitors</option>
+                <option value="Sulfonylurea">Sulfonylurea</option>
+                <option value="TZD">TZD (Thiazolidinediones)</option>
+                <option value="ARB">ARB (Angiotensin Receptor Blocker)</option>
+                <option value="ACEi">ACE Inhibitor</option>
+                <option value="CCB">Calcium Channel Blocker</option>
+                <option value="Beta Blocker">Beta Blocker</option>
+                <option value="Thiazide">Thiazide Diuretic</option>
+                <option value="Aspirin">Aspirin</option>
+                <option value="Clopidogrel">Clopidogrel</option>
+                <option value="Anti-Lipid">Anti-Lipid Medications</option>
+                <option value="Levothyroxine">Levothyroxine</option>
+                <option value="Supplements">Supplements</option>
+                <option value="Other">Other</option></select
+              ><input
+                class="medication-other"
+                placeholder="Specify other"
+                style="display: none; width: 150px; margin-left: 5px"
+                type="text"
+              />
+              <div class="medication-subtype-container">
+                <select class="medication-subtype" style="display: none">
+                  <option value="">Select Type</option>
+                </select>
+              </div>
+              <input class="medication-dose" placeholder="Dose" type="text" />
+              <select class="medication-freq">
+                <option value="">Frequency</option>
+                <option value="Once daily">Once daily</option>
+                <option value="Twice daily">Twice daily</option>
+                <option value="Three times daily">Three times daily</option>
+                <option value="With meals">With meals</option>
+                <option value="At bedtime">At bedtime</option>
+                <option value="Every week">Every week</option>
+                <option value="Every 2 weeks">Every 2 weeks</option>
+                <option value="Not Tolerated">Not Tolerated</option>
+                <option value="Other">Other</option>
+              </select>
+              <select class="medication-status">
+                <option value="Continue">Continue</option>
+                <option value="Discontinue">Discontinue</option>
+                <option value="Increase Dose">Increase Dose</option>
+                <option value="Decrease Dose">Decrease Dose</option>
+                <option value="Change Frequency">Change Frequency</option>
+                <option value="Start">Start</option>
+                <option value="patient Refuse">patient Refuse</option>
+              </select>
+              <textarea
+                class="medication-instruction"
+                placeholder="Medication instructions..."
+              ></textarea>
+              <input
+                class="levothyroxine-duration"
+                placeholder="Duration (e.g., 100mcg 5d/wk, 50mcg 2d/wk)"
+                style="width: 250px; display: none"
+                type="text"
+              />
+              <button
+                class="remove-med-btn"
+                onclick="removeNewMedication(this)"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+        <button class="add-med-btn" onclick="addNewMedication()">
+          + Add Medication
+        </button>
+      </div>
+      <div class="section">
+        <h3>Orders and Referrals</h3>
+        <div class="checkboxes" style="column-count: 2">
+          <label
+            ><input
+              class="referral"
+              type="checkbox"
+              value="Discharge patient to PHC"
+            />
+            Discharge patient to PHC</label
+          >
+          <label
+            ><input
+              class="referral"
+              type="checkbox"
+              value="Refer Patient to Educator"
+            />
+            Refer Patient to Educator</label
+          >
+          <label
+            ><input
+              class="referral"
+              type="checkbox"
+              value="Refer Patient to Nutritionist"
+            />
+            Refer Patient to Nutritionist</label
+          >
+          <label
+            ><input
+              class="referral"
+              type="checkbox"
+              value="Refer Patient to DM Foot Clinic"
+            />
+            Refer Patient to DM Foot Clinic</label
+          >
+          <label
+            ><input
+              class="referral"
+              type="checkbox"
+              value="Refer Patient to Kidney Center"
+            />
+            Refer Patient to Kidney Center</label
+          >
+          <label
+            ><input
+              class="referral"
+              type="checkbox"
+              value="Refer Patient to OPH Clinic"
+            />
+            Refer Patient to OPH Clinic</label
+          >
+          <label
+            ><input
+              class="referral"
+              type="checkbox"
+              value="Refer Patient to Social Worker"
+            />
+            Refer Patient to Social Worker</label
+          >
+          <label
+            ><input
+              class="referral"
+              type="checkbox"
+              value="Refer Patient to Psychiatry Clinic"
+            />
+            Refer Patient to Psychiatry Clinic</label
+          >
+          <label
+            ><input
+              class="referral"
+              type="checkbox"
+              value="Refer Patient to Neurology Clinic"
+            />
+            Refer Patient to Neurology Clinic</label
+          >
+          <label
+            ><input
+              class="referral"
+              type="checkbox"
+              value="Refer Patient to Impotence Clinic"
+            />
+            Refer Patient to Impotence Clinic</label
+          >
+        </div>
+      </div>
+      <div class="section">
+        <h3>Instructions to Educator</h3>
+        <div class="checkboxes">
+          <label
+            ><input
+              class="educatorInstruction"
+              type="checkbox"
+              value="Instruct Patient how to adjust basal insulin every 3 days based on Fasting BG target 80-130 mg/dl"
+            />
+            Instruct Patient how to adjust basal insulin every 3 days based on
+            Fasting BG target 80-130 mg/dl</label
+          >
+          <label
+            ><input
+              class="educatorInstruction"
+              type="checkbox"
+              value="Instruct Patient how to adjust Pre-meal Insulin Doses every 2 days based on 2h-Post-meals target 140 - 180 mg/dl"
+            />
+            Instruct Patient how to adjust Pre-meal Insulin Doses every 2 days
+            based on 2h-Post-meals target 140 - 180 mg/dl</label
+          >
+          <label
+            ><input
+              class="educatorInstruction"
+              type="checkbox"
+              value="Instruct patient how to use Insulin Correction dose with ISF"
+            />
+            Instruct patient how to use Insulin Correction dose with ISF</label
+          >
+          <label
+            ><input
+              class="educatorInstruction"
+              type="checkbox"
+              value="Instruct Patient how to use Ozempic Medication"
+            />
+            Instruct Patient how to use Ozempic Medication</label
+          >
+          <label
+            ><input
+              class="educatorInstruction"
+              type="checkbox"
+              value="Instruct Patient how to use Trulicity"
+            />
+            Instruct Patient how to use Trulicity</label
+          >
+          <label
+            ><input
+              class="educatorInstruction"
+              type="checkbox"
+              value="Instruct Patient how to use Soliqua (within 1 hour before main time)"
+            />
+            Instruct Patient how to use Soliqua (within 1 hour before main
+            time)</label
+          >
+          <label
+            ><input
+              class="educatorInstruction"
+              type="checkbox"
+              value="Encourage Physical Activity"
+            />
+            Encourage Physical Activity</label
+          >
+          <label
+            ><input
+              class="educatorInstruction"
+              type="checkbox"
+              value="Instruct Patient to monitor blood glucose regularly"
+            />
+            Instruct Patient to monitor blood glucose regularly</label
+          >
+          <label
+            ><input
+              class="educatorInstruction"
+              type="checkbox"
+              value="FU with the Patient weekly to ensure he/she is able to follow the instructions"
+            />
+            FU with the Patient weekly to ensure he/she is able to follow the
+            instructions</label
+          >
+        </div>
+      </div>
+      <div class="section">
+        <h3>Nutritionist Instructions</h3>
+        <div class="checkboxes">
+          <label
+            ><input
+              class="nutritionistInstruction"
+              type="checkbox"
+              value="Instruct Patient to follow Low Carb Diet"
+            />
+            Instruct Patient to follow Low Carb Diet</label
+          >
+          <label
+            ><input
+              class="nutritionistInstruction"
+              type="checkbox"
+              value="Instruct Patient to Avoid Excessive Carb intake"
+            />
+            Instruct Patient to Avoid Excessive Carb intake</label
+          >
+          <label
+            ><input
+              class="nutritionistInstruction"
+              type="checkbox"
+              value="Instruct Patient to learn Carb Count"
+            />
+            Instruct Patient to learn Carb Count</label
+          >
+          <label
+            ><input
+              class="nutritionistInstruction"
+              type="checkbox"
+              value="Instruct Patient to learn Carb Count with ICR"
+            />
+            Instruct Patient to learn Carb Count with ICR</label
+          >
+          <label
+            ><input
+              class="nutritionistInstruction"
+              type="checkbox"
+              value="FU with the Patient weekly to ensure he/she is able to follow the instructions"
+            />
+            FU with the Patient weekly to ensure he/she is able to follow the
+            instructions</label
+          >
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button class="generate" onclick="generateNote()">Generate Note</button>
+      <button class="copy-btn" onclick="copyNote()">Copy Note</button>
+      <button class="clear-btn" onclick="clearForm()">Clear Form</button>
+    </div>
+
+    <h2>Progress Note</h2>
+    <textarea id="progressNote" readonly=""></textarea>
+    <script>
+      // Add this new function to handle gender changes
+      function handleGenderChange() {
+        calculateEGFR();
+        // Show female details section only if gender is female
+        document.getElementById("femaleDetailsSection").style.display =
+          document.getElementById("patientGender").value === "Female"
+            ? "block"
+            : "none";
+      }
+
+      // Update the gender select to use the new handler
+      document.getElementById("patientGender").onchange = handleGenderChange;
+
+      // Function to toggle dose selection for herpes zoster vaccine
+      function toggleDoseSelect(checkbox) {
+        const doseSelect = document.getElementById("herpesZosterDose");
+        if (checkbox.checked && checkbox.value === "Herpes Zoster") {
+          doseSelect.style.display = "inline-block";
+        } else {
+          doseSelect.style.display = "none";
+        }
+      }
+
+      function toggleComplications(checkbox) {
+        const allComplications = document.querySelectorAll(
+          ".complication:not(#noComplicationsCheckbox)"
+        );
+        const complicationNotes =
+          document.querySelectorAll(".complication-note");
+
+        if (checkbox.checked) {
+          // Uncheck and disable all other complications
+          allComplications.forEach((cb) => {
+            cb.checked = false;
+            cb.disabled = true;
+            cb.parentElement.style.opacity = "0.6";
+            cb.parentElement.style.pointerEvents = "none";
+          });
+
+          // Hide and clear all complication notes
+          complicationNotes.forEach((note) => {
+            note.style.display = "none";
+            note.value = "";
+          });
+        } else {
+          // Enable all other complications
+          allComplications.forEach((cb) => {
+            cb.disabled = false;
+            cb.parentElement.style.opacity = "1";
+            cb.parentElement.style.pointerEvents = "auto";
+          });
+        }
+      }
+      function toggleComplicationNote(checkbox) {
+        const complication = checkbox.value;
+        const noteField = document.getElementById(
+          complication.toLowerCase().replace(/\s+/g, "") + "Note"
+        );
+
+        // Show/hide based on checkbox
+        if (noteField) {
+          noteField.style.display = checkbox.checked ? "inline-block" : "none";
+          if (!checkbox.checked) noteField.value = ""; // Clear note if unchecked
+        }
+      }
+
+      // Input validation helper
+      function validateNumberInput(input, min = 0, max = 999) {
+        const value = parseFloat(input.value);
+        if (isNaN(value) || value < min || value > max) {
+          input.style.border = "1px solid red";
+          return false;
+        }
+        input.style.border = "";
+        return true;
+      }
+
+      // Apply validation to key fields
+      document
+        .getElementById("patientAge")
+        .addEventListener("blur", function () {
+          validateNumberInput(this, 1, 120);
+        });
+
+      document.getElementById("weight").addEventListener("blur", function () {
+        validateNumberInput(this, 10, 300);
+      });
+
+      document.getElementById("height").addEventListener("blur", function () {
+        validateNumberInput(this, 50, 250);
+      });
+
+      // Lab value validation
+      document
+        .querySelectorAll(
+          "#hba1c, #fbs, #ldl, #hdl, #tg, #totalChol, #creatinine, #acr, #alt, #ast, #hb, #tsh, #ft4, #ft3"
+        )
+        .forEach((input) => {
+          input.addEventListener("blur", function () {
+            validateNumberInput(this, 0);
+          });
+        });
+
+      // Toggle complications when "No complications" is checked
+      function toggleComplications(checkbox) {
+        const noComplicationsChecked = checkbox.checked;
+        const allComplications = document.querySelectorAll(
+          ".complication:not(#noComplicationsCheckbox)"
+        );
+
+        allComplications.forEach((cb) => {
+          cb.disabled = noComplicationsChecked;
+          cb.checked = false;
+          cb.parentElement.style.opacity = noComplicationsChecked ? "0.6" : "1";
+          cb.parentElement.style.pointerEvents = noComplicationsChecked
+            ? "none"
+            : "auto";
+
+          // Manually hide notes if "No complications" is checked
+          if (noComplicationsChecked) {
+            const noteId = cb.value.toLowerCase().replace(/\s+/g, "") + "Note";
+            const noteField = document.getElementById(noteId);
+            if (noteField) {
+              noteField.style.display = "none";
+              noteField.value = "";
+            }
+          }
+        });
+      }
+
+      function toggleDiabetesTypeFields() {
+  const selectedType = document.querySelector('input[name="diabetesType"]:checked')?.value;
+  
+  // Hide all specification fields first
+  document.querySelectorAll('.diabetes-specification').forEach(el => {
+    el.style.display = 'none';
+  });
+  
+  // Show the appropriate field based on selection
+  if (selectedType === 'MODY') {
+    document.getElementById('modySpecification').style.display = 'inline-block';
+  } else if (selectedType === 'Other') {
+    document.getElementById('diabetesTypeOther').style.display = 'inline-block';
+  }
+  
+  // Update insulin therapy section based on selection
+  toggleInsulinTherapy();
+}
+
+      // Show/hide insulin therapy section based on diabetes type
+      function toggleInsulinTherapy() {
+  const selectedType = document.querySelector('input[name="diabetesType"]:checked')?.value;
+  const insulinTherapySection = document.getElementById("insulinTherapySection");
+
+  if (selectedType === "Type 1") {
+    insulinTherapySection.style.display = "block";
+    calculateTDD();
+  } else {
+    insulinTherapySection.style.display = "none";
+  }
+}
+
+      // Calculate Total Daily Dose (TDD) from current insulin medications
+      function calculateTDD() {
+        let tdd = 0;
+        const medGroups = document.querySelectorAll(".medication-group");
+
+        medGroups.forEach((group) => {
+          const name = group.querySelector(".medication-name").value;
+          const dose = group.querySelector(".medication-dose").value;
+
+          if (name === "Insulin" && dose) {
+            const doseValue = parseFloat(dose);
+            const freq = group.querySelector(".medication-freq").value;
+
+            if (freq === "Once daily") tdd += doseValue;
+            else if (freq === "Twice daily") tdd += doseValue * 2;
+            else if (freq === "Three times daily") tdd += doseValue * 3;
+            else if (freq === "With meals")
+              tdd += doseValue * 3; // Assuming 3 meals
+            else tdd += doseValue; // For other frequencies, just add the dose once
+          }
+        });
+
+        document.getElementById("tddResult").textContent =
+          tdd > 0 ? tdd + " units" : "Not calculated";
+
+        // Calculate ICR and ISF if TDD is available
+        if (tdd > 0) {
+          const icr = Math.round(500 / tdd);
+          const isf = Math.round(1800 / tdd);
+
+          document.getElementById("icrResult").textContent =
+            icr > 0 ? "1:" + icr : "Not calculated";
+          document.getElementById("isfResult").textContent =
+            isf > 0 ? isf + " mg/dL per unit" : "Not calculated";
+        }
+      }
+
+      function calculateEGFR() {
+        let creatinine = parseFloat(
+          document.getElementById("creatinine").value
+        );
+        const creatinineUnit = document.getElementById("creatinine-unit").value;
+        const age = parseInt(document.getElementById("patientAge").value);
+        const gender = document.getElementById("patientGender").value;
+
+        // Convert to mg/dL if needed for CKD-EPI formula
+        if (creatinine && creatinineUnit === "μmol/L") {
+          creatinine = creatinine / 88.4; // Convert μmol/L to mg/dL
+        }
+
+        // CKD-EPI 2021 formula coefficients
+        let k, a, sexCoeff;
+
+        if (gender === "Female") {
+          k = 0.7;
+          a = -0.241;
+          sexCoeff = 1.012;
+        } else {
+          k = 0.9;
+          a = -0.302;
+          sexCoeff = 1.0;
+        }
+
+        // Calculate eGFR
+        const crRatio = Math.min(creatinine / k, 1);
+        const egfr =
+          142 *
+          Math.pow(crRatio, a) *
+          Math.pow(Math.max(creatinine / k, 1), -1.2) *
+          Math.pow(0.9938, age) *
+          sexCoeff;
+
+        // Round to 1 decimal place
+        const roundedEGFR = Math.round(egfr * 10) / 10;
+
+        // Update display
+        document.getElementById("egfr").value = roundedEGFR;
+
+        // Add CKD stage classification
+        let stage = "";
+        if (egfr >= 90) stage = " (Stage G1)";
+        else if (egfr >= 60) stage = " (Stage G2)";
+        else if (egfr >= 45) stage = " (Stage G3a)";
+        else if (egfr >= 30) stage = " (Stage G3b)";
+        else if (egfr >= 15) stage = " (Stage G4)";
+        else stage = " (Stage G5)";
+
+        document.getElementById("egfr-result").textContent =
+          roundedEGFR + stage;
+      }
+
+      // Update ACR category
+      function updateACRCategory() {
+        let acr = parseFloat(document.getElementById("acr").value);
+        const acrUnit = document.getElementById("acr-unit").value;
+
+        if (!acr) {
+          document.getElementById("acr-category").textContent = "";
+          return;
+        }
+
+        // Convert to mg/g if needed
+        if (acrUnit === "mg/mmol") {
+          acr = acr * 8.84;
+        }
+
+        let category = "";
+        if (acr < 30) category = " (Normal)";
+        else if (acr < 300) category = " (Moderately increased)";
+        else category = " (Severely increased)";
+
+        document.getElementById("acr-category").textContent = category;
+      }
+
+      // Unit conversion functions
+      function convertHba1cToMmol(val) {
+        return val ? (10.93 * val - 23.5).toFixed(1) + " mmol/mol" : "";
+      }
+
+      function convertGlucoseUnits() {
+  const glucose = parseFloat(document.getElementById("fbs").value);
+  const unit = document.getElementById("fbs-unit").value;
+  const conversionSpan = document.getElementById("fbs-converted");
+
+  if (!glucose) {
+    conversionSpan.textContent = "";
+    document.getElementById("fbs-converted-value").value = "";
+    return;
+  }
+
+  if (unit === "mmol/L") {
+    const converted = (glucose * 18).toFixed(0);
+    conversionSpan.textContent = converted + " mg/dL";
+    document.getElementById("fbs-converted-value").value = converted + " mg/dL";
+  } else {
+    const converted = (glucose / 18).toFixed(1);
+    conversionSpan.textContent = converted + " mmol/L";
+    document.getElementById("fbs-converted-value").value = converted + " mmol/L";
+  }
+}
+
+     // Creatinine conversion
+function convertCreatinineUnits() {
+  const creatinine = parseFloat(document.getElementById("creatinine").value);
+  const unit = document.getElementById("creatinine-unit").value;
+  const conversionSpan = document.getElementById("creatinine-converted");
+
+  if (!creatinine) {
+    conversionSpan.textContent = "";
+    document.getElementById("creatinine-converted-value").value = "";
+    calculateEGFR();
+    return;
+  }
+
+  if (unit === "μmol/L") {
+    const converted = (creatinine / 88.4).toFixed(2);
+    conversionSpan.textContent = converted + " mg/dL";
+    document.getElementById("creatinine-converted-value").value = converted + " mg/dL";
+  } else {
+    const converted = (creatinine * 88.4).toFixed(0);
+    conversionSpan.textContent = converted + " μmol/L";
+    document.getElementById("creatinine-converted-value").value = converted + " μmol/L";
+  }
+  calculateEGFR();
+}
+
+// ACR conversion
+function convertACRUnits() {
+  const acr = parseFloat(document.getElementById("acr").value);
+  const unit = document.getElementById("acr-unit").value;
+  const conversionSpan = document.getElementById("acr-converted");
+
+  if (!acr) {
+    conversionSpan.textContent = "";
+    document.getElementById("acr-converted-value").value = "";
+    updateACRCategory();
+    return;
+  }
+
+  if (unit === "mg/mmol") {
+    const converted = (acr * 8.84).toFixed(1);
+    conversionSpan.textContent = converted + " mg/g";
+    document.getElementById("acr-converted-value").value = converted + " mg/g";
+  } else {
+    const converted = (acr / 8.84).toFixed(1);
+    conversionSpan.textContent = converted + " mg/mmol";
+    document.getElementById("acr-converted-value").value = converted + " mg/mmol";
+  }
+  updateACRCategory();
+}
+
+      function convertHbGdlToMmol(val) {
+        return val ? (val * 0.6206).toFixed(1) + " mmol/L" : "";
+      }
+
+      function convertHbMmolToGdl(val) {
+        return val ? (val / 0.6206).toFixed(1) + " g/dL" : "";
+      }
+
+      function convertFT4NgdlToPmol(val) {
+        return val ? (val * 12.87).toFixed(1) + " pmol/L" : "";
+      }
+
+      function convertFT4PmolToNgdl(val) {
+        return val ? (val / 12.87).toFixed(2) + " ng/dL" : "";
+      }
+
+      function convertFT3PgmlToPmol(val) {
+        return val ? (val * 1.536).toFixed(1) + " pmol/L" : "";
+      }
+
+      function convertFT3PmolToPgml(val) {
+        return val ? (val / 1.536).toFixed(1) + " pg/mL" : "";
+      }
+
+      // Unit conversion handlers
+      function convertGlucoseUnits() {
+        const fbs = parseFloat(document.getElementById("fbs").value);
+        const unit = document.getElementById("fbs-unit").value;
+
+        if (!fbs) {
+          document.getElementById("fbs-converted").textContent = "";
+          return;
+        }
+
+        if (unit === "mg/dL") {
+          document.getElementById("fbs-converted").textContent =
+            convertGlucoseMgToMmol(fbs);
+        } else {
+          document.getElementById("fbs-converted").textContent =
+            convertGlucoseMmolToMg(fbs);
+        }
+      }
+
+      function convertCreatinineUnits() {
+        const creatinine = parseFloat(
+          document.getElementById("creatinine").value
+        );
+        const unit = document.getElementById("creatinine-unit").value;
+
+        if (!creatinine) {
+          document.getElementById("creatinine-converted").textContent = "";
+          return;
+        }
+
+        if (unit === "mg/dL") {
+          document.getElementById("creatinine-converted").textContent =
+            convertCrMgToUmoll(creatinine);
+        } else {
+          document.getElementById("creatinine-converted").textContent =
+            convertCrUmollToMg(creatinine);
+        }
+
+        // Recalculate eGFR if creatinine changes
+        calculateEGFR();
+      }
+
+      function convertACRUnits() {
+        const acr = parseFloat(document.getElementById("acr").value);
+        const unit = document.getElementById("acr-unit").value;
+
+        if (!acr) {
+          document.getElementById("acr-converted").textContent = "";
+          return;
+        }
+
+        if (unit === "mg/g") {
+          document.getElementById("acr-converted").textContent =
+            convertACRMgToMgmmol(acr);
+        } else {
+          document.getElementById("acr-converted").textContent =
+            convertACRMgmmolToMg(acr);
+        }
+
+        // Update ACR category
+        updateACRCategory();
+      }
+
+      function convertHemoglobinUnits() {
+        const hb = parseFloat(document.getElementById("hb").value);
+        const unit = document.getElementById("hb-unit").value;
+
+        if (!hb) {
+          document.getElementById("hb-converted").textContent = "";
+          return;
+        }
+
+        if (unit === "g/dL") {
+          document.getElementById("hb-converted").textContent =
+            convertHbGdlToMmol(hb);
+        } else {
+          document.getElementById("hb-converted").textContent =
+            convertHbMmolToGdl(hb);
+        }
+      }
+
+      function convertFT4Units() {
+        const ft4 = parseFloat(document.getElementById("ft4").value);
+        const unit = document.getElementById("ft4-unit").value;
+
+        if (!ft4) {
+          document.getElementById("ft4-converted").textContent = "";
+          return;
+        }
+
+        if (unit === "ng/dL") {
+          document.getElementById("ft4-converted").textContent =
+            convertFT4NgdlToPmol(ft4);
+        } else {
+          document.getElementById("ft4-converted").textContent =
+            convertFT4PmolToNgdl(ft4);
+        }
+      }
+
+      function convertFT3Units() {
+        const ft3 = parseFloat(document.getElementById("ft3").value);
+        const unit = document.getElementById("ft3-unit").value;
+
+        if (!ft3) {
+          document.getElementById("ft3-converted").textContent = "";
+          return;
+        }
+
+        if (unit === "pg/mL") {
+          document.getElementById("ft3-converted").textContent =
+            convertFT3PgmlToPmol(ft3);
+        } else {
+          document.getElementById("ft3-converted").textContent =
+            convertFT3PmolToPgml(ft3);
+        }
+
+        function convertLipidUnits(lipidType) {
+  const value = parseFloat(document.getElementById(lipidType).value);
+  const unit = document.getElementById(`${lipidType}-unit`).value;
+  const conversionSpan = document.getElementById(`${lipidType}-converted`);
+  
+  if (!value) {
+    conversionSpan.textContent = "";
+    document.getElementById(`${lipidType}-converted-value`).value = "";
+    return;
+  }
+
+  // Conversion factors
+  const factors = {
+    ldl: 38.67,
+    hdl: 38.67,
+    tg: 88.57,
+    totalChol: 38.67
+  };
+
+  if (unit === "mmol/L") {
+    const converted = (value * factors[lipidType]).toFixed(0);
+    conversionSpan.textContent = `${converted} mg/dL`;
+    document.getElementById(`${lipidType}-converted-value`).value = `${converted} mg/dL`;
+  } else {
+    const converted = (value / factors[lipidType]).toFixed(2);
+    conversionSpan.textContent = `${converted} mmol/L`;
+    document.getElementById(`${lipidType}-converted-value`).value = `${converted} mmol/L`;
+
+  };
+
+  // Initialize
+  setupEventListeners();
+}
+
+// Start the system when DOM is ready
+document.addEventListener('DOMContentLoaded', setupLipidConversions);
+      }
+
+      // Medication database with updated Anti-Lipid options
+      const medicationDB = {
+        Metformin: {
+          subtypes: ["Regular", "XR"],
+          defaultDose: "mg",
+        },
+        Insulin: {
+          subtypes: ["Long-acting", "Short-acting", "Rapid-acting", "Premixed"],
+          defaultDose: "IU",
+        },
+        "Long-acting": {
+          subtypes: ["Glargine", "Degludec", "Detemir", "Soliqua"],
+          defaultDose: "IU",
+        },
+        "Short-acting": {
+          subtypes: ["Regular insulin"],
+          defaultDose: "IU",
+        },
+        "Rapid-acting": {
+          subtypes: ["Aspart", "Lispro", "Glulisine"],
+          defaultDose: "IU",
+        },
+        Premixed: {
+          subtypes: ["NPH", "Novomix", "Humalog 25%", "Humalog 50%"],
+          defaultDose: "IU",
+        },
+        "GLP-1 RA": {
+          subtypes: ["Liraglutide", "Dulaglutide", "Semaglutide"],
+          defaultDose: "mg",
+        },
+        SGLT2i: {
+          subtypes: ["Empagliflozin", "Dapagliflozin", "Canagliflozin"],
+          defaultDose: "mg",
+        },
+        "DPP-4i": {
+          subtypes: ["Sitagliptin", "Linagliptin"],
+          defaultDose: "mg",
+        },
+        Sulfonylurea: {
+          subtypes: ["Glibenclamide", "Gliclazide", "Glimepiride"],
+          defaultDose: "mg",
+        },
+        TZD: {
+          subtypes: ["Pioglitazone"],
+          defaultDose: "mg",
+        },
+        ARB: {
+          subtypes: [
+            "Losartan",
+            "Valsartan",
+            "Irbesartan",
+            "Candesartan",
+            "Olmesartan",
+            "Telmisartan",
+          ],
+          defaultDose: "mg",
+        },
+        ACEi: {
+          subtypes: [
+            "Lisinopril",
+            "Enalapril",
+            "Ramipril",
+            "Perindopril",
+            "Captopril",
+          ],
+          defaultDose: "mg",
+        },
+        CCB: {
+          subtypes: ["Amlodipine", "Nifedipine", "Diltiazem", "Verapamil"],
+          defaultDose: "mg",
+        },
+        "Beta Blocker": {
+          subtypes: [
+            "Metoprolol",
+            "Atenolol",
+            "Bisoprolol",
+            "Carvedilol",
+            "Propranolol",
+          ],
+          defaultDose: "mg",
+        },
+        Thiazide: {
+          subtypes: ["Hydrochlorothiazide", "Chlorthalidone", "Indapamide"],
+          defaultDose: "mg",
+        },
+        Aspirin: {
+          subtypes: ["81mg", "325mg"],
+          defaultDose: "mg",
+        },
+        Clopidogrel: {
+          subtypes: [],
+          defaultDose: "mg",
+        },
+        "Anti-Lipid": {
+          subtypes: ["Rosuvastatin", "Atorvastatin", "Ezetimibe", "Fenofibrate", "Evolocumab"],
+          defaultDose: "mg",
+        },
+        Levothyroxine: {
+          subtypes: [],
+          defaultDose: "mcg",
+        },
+
+        Supplements: {
+    subtypes: ["Vitamin B Complex", "Vitamin D", "Calcium", "Multivitamin"],
+    defaultDose: "", // We'll handle this per subtype
+    subtypeDoses: {
+      "Vitamin B Complex": "1 tab",
+      "Vitamin D": "1000 IU",
+      "Calcium": "500 mg",
+      "Magnesium": "250 mg",
+      "Multivitamin": "1 tab"
+    },
+    defaultFrequencies: {
+      "Vitamin B Complex": "Once daily",
+      "Vitamin D": "Once daily",
+      "Calcium": "Twice daily",
+      "Magnesium": "Once daily",
+      "Multivitamin": "Once daily"
+    }
+  },
+        Other: {
+          subtypes: [],
+          defaultDose: "",
+        },
+      };
+
+      // Add new medication row
+      function addMedication() {
+        const container = document.getElementById("medication-container");
+        const newGroup = document.createElement("div");
+        newGroup.className = "medication-group";
+
+        newGroup.innerHTML = `
+          <div class="medication-row">
+            <select class="medication-name" onchange="updateMedicationOptions(this)">
+              <option value="">Select Medication</option>
+              <option value="Metformin">Metformin</option>
+              <option value="Insulin">Insulin</option>
+              <option value="GLP-1 RA">GLP-1 RA</option>
+              <option value="SGLT2i">SGLT2 Inhibitors</option>
+              <option value="DPP-4i">DPP-4 Inhibitors</option>
+              <option value="Sulfonylurea">Sulfonylurea</option>
+              <option value="TZD">TZD (Thiazolidinediones)</option>
+              <option value="ARB">ARB (Angiotensin Receptor Blocker)</option>
+              <option value="ACEi">ACE Inhibitor</option>
+              <option value="CCB">Calcium Channel Blocker</option>
+              <option value="Beta Blocker">Beta Blocker</option>
+              <option value="Thiazide">Thiazide Diuretic</option>
+              <option value="Aspirin">Aspirin</option>
+              <option value="Clopidogrel">Clopidogrel</option>
+              <option value="Anti-Lipid">Anti-Lipid Medications</option>
+              <option value="Levothyroxine">Levothyroxine</option>
+              <option value="Other">Other</option>
+            </select>
+            
+            <div class="medication-subtype-container">
+              <select class="medication-subtype" style="display: none;">
+                <option value="">Select Type</option>
+              </select>
+            </div>
+            <input type="text" class="medication-dose" placeholder="Dose">
+            <select class="medication-freq">
+              <option value="">Frequency</option>
+              <option value="Once daily">Once daily</option>
+              <option value="Twice daily">Twice daily</option>
+              <option value="Three times daily">Three times daily</option>
+              <option value="With meals">With meals</option>
+              <option value="At bedtime">At bedtime</option>
+              <option value="Every 2 weeks">Every 2 weeks</option>
+              <option value="Not Tolerated">Not Tolerated</option>
+              <option value="patient Refuse">patient Refuse</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <button class="remove-med-btn" onclick="removeMedication(this)">
+              Remove
+            </button>
+          </div>
+        `;
+
+        container.appendChild(newGroup);
+      }
+
+      // Remove medication row
+      function removeMedication(button) {
+        const container = document.getElementById("medication-container");
+        if (container.children.length > 1) {
+          button.closest(".medication-group").remove();
+        } else {
+          alert("At least one medication row must remain");
+        }
+      }
+
+      // Add family history member
+      function addFamilyMember() {
+        const container = document.getElementById("familyHistoryContainer");
+        const newMember = document.createElement("div");
+        newMember.className = "family-member";
+        newMember.innerHTML = `
+          <select class="family-relation">
+            <option value="">Select family member</option>
+            <option value="Mother">Mother</option>
+            <option value="Father">Father</option>
+            <option value="Sibling">Sibling</option>
+            <option value="Grandparent">Grandparent</option>
+            <option value="Aunt/Uncle">Aunt/Uncle</option>
+            <option value="Child">Child</option>
+          </select>
+          <select class="family-diabetes-type">
+            <option value="">Type of diabetes</option>
+            <option value="Type 1">Type 1</option>
+            <option value="Type 2">Type 2</option>
+            <option value="GDM">GDM</option>
+            <option value="Other">Other</option>
+          </select>
+          <input type="text" class="family-age-diagnosis" placeholder="Age at diagnosis" style="width: 120px;">
+          <button class="remove-med-btn" onclick="removeFamilyMember(this)">
+            Remove
+          </button>
+        `;
+        container.appendChild(newMember);
+      }
+
+      // Remove family history member
+      function removeFamilyMember(button) {
+        const container = document.getElementById("familyHistoryContainer");
+        if (container.children.length > 1) {
+          button.closest(".family-member").remove();
+        } else {
+          alert("At least one family member must remain");
+        }
+      }
+
+      // Updated function to set default frequencies for specific medications
+      function updateMedicationOptions(select) {
+        // 1. Get the medication row and instruction box
+        const row = select.closest(".medication-row");
+
+        // 3. Rest of the existing function (subtype handling, etc.)
+        const medication = select.value;
+        const subtypeContainer = row.querySelector(
+          ".medication-subtype-container"
+        );
+        const doseInput = row.querySelector(".medication-dose");
+        const freqSelect = row.querySelector(".medication-freq");
+
+        // Clear previous subtype dropdowns
+        subtypeContainer.innerHTML =
+          '<select class="medication-subtype" style="display: none;"><option value="">Select Type</option></select>';
+
+        // Reset and hide subtype if no medication selected
+        if (!medication || medication === "Other") {
+          subtypeContainer.querySelector(".medication-subtype").style.display =
+            "none";
+          doseInput.placeholder = "Dose";
+          resetFrequencyOptions(freqSelect);
+          return;
+        }
+
+        // Set default dose placeholder with unit
+        const doseUnit = medicationDB[medication].defaultDose || "";
+        doseInput.placeholder = doseUnit ? `Dose (${doseUnit})` : "Dose";
+
+        // Special handling for insulin
+        if (medication === "Insulin") {
+          createInsulinSubtypeDropdowns(
+            subtypeContainer,
+            medicationDB[medication].subtypes
+          );
+        } else {
+          // Standard medication handling
+          const subtypeSelect = subtypeContainer.querySelector(
+            ".medication-subtype"
+          );
+          subtypeSelect.innerHTML = '<option value="">Select Type</option>';
+
+          medicationDB[medication].subtypes.forEach((subtype) => {
+            subtypeSelect.innerHTML += `<option value="${subtype}">${subtype}</option>`;
+          });
+
+          if (medicationDB[medication].subtypes.length > 0) {
+            subtypeSelect.style.display = "inline-block";
+          } else {
+            subtypeSelect.style.display = "none";
+          }
+        }
+
+        // Set default frequency for specific medications
+        if (medication === "GLP-1 RA") {
+          const subtypeSelect = subtypeContainer.querySelector(
+            ".medication-subtype"
+          );
+          subtypeSelect.addEventListener("change", function () {
+            const subtype = this.value;
+            if (subtype === "Semaglutide" || subtype === "Dulaglutide") {
+              freqSelect.innerHTML = `
+                <option value="Once weekly" selected>Once weekly</option>
+                <option value="Not Tolerated">Not Tolerated</option>
+                <option value="patient Refuse">patient Refuse</option>
+                <option value="Other">Other</option>
+              `;
+            } else if (subtype === "Liraglutide") {
+              freqSelect.innerHTML = `
+                <option value="Once daily" selected>Once daily</option>
+                <option value="Not Tolerated">Not Tolerated</option>
+                <option value="patient Refuse">patient Refuse</option>
+                <option value="Other">Other</option>
+              `;
+            } else {
+              resetFrequencyOptions(freqSelect);
+            }
+          });
+        } else if (medication === "Anti-Lipid") {
+          const subtypeSelect = subtypeContainer.querySelector(
+            ".medication-subtype"
+          );
+          subtypeSelect.addEventListener("change", function () {
+            const subtype = this.value;
+            if (subtype === "Evolocumab") {
+              freqSelect.innerHTML = `
+                <option value="Every 2 weeks" selected>Every 2 weeks</option>
+                <option value="Not Tolerated">Not Tolerated</option>
+                <option value="patient Refuse">patient Refuse</option>
+                <option value="Other">Other</option>
+              `;
+            } else {
+              resetFrequencyOptions(freqSelect);
+            }
+          });
+        } else {
+          resetFrequencyOptions(freqSelect);
+        }
+      }
+
+      // Reset to standard frequency options
+      function resetFrequencyOptions(select) {
+        select.innerHTML = `
+          <option value="">Frequency</option>
+          <option value="Once daily">Once daily</option>
+          <option value="Twice daily">Twice daily</option>
+          <option value="Three times daily">Three times daily</option>
+          <option value="With meals">With meals</option>
+          <option value="At bedtime">At bedtime</option>
+          <option value="Once weekly">Once weekly</option>
+          <option value="Every 2 weeks">Every 2 weeks</option>
+          <option value="Not Tolerated">Not Tolerated</option>
+          <option value="patient Refuse">patient Refuse</option>
+          <option value="Other">Other</option>
+        `;
+      }
+
+      // Create nested dropdowns for insulin types
+      function createInsulinSubtypeDropdowns(container, subtypes) {
+        container.innerHTML = ""; // Clear previous dropdowns
+
+        // First level dropdown (insulin types)
+        const firstLevelSelect = document.createElement("select");
+        firstLevelSelect.className = "medication-subtype";
+        firstLevelSelect.innerHTML =
+          '<option value="">Select Insulin Type</option>';
+
+        subtypes.forEach((type) => {
+          firstLevelSelect.innerHTML += `<option value="${type}">${type}</option>`;
+        });
+
+        container.appendChild(firstLevelSelect);
+
+        // Second level dropdown (specific insulin)
+        const secondLevelSelect = document.createElement("select");
+        secondLevelSelect.className = "medication-subtype";
+        secondLevelSelect.style.display = "none";
+        secondLevelSelect.innerHTML =
+          '<option value="">Select Specific Insulin</option>';
+        container.appendChild(secondLevelSelect);
+
+        // Show/hide second level based on first level selection
+        firstLevelSelect.addEventListener("change", function () {
+          const selectedType = this.value;
+          secondLevelSelect.style.display = "none";
+          secondLevelSelect.innerHTML =
+            '<option value="">Select Specific Insulin</option>';
+
+          if (selectedType && medicationDB[selectedType]) {
+            medicationDB[selectedType].subtypes.forEach((subtype) => {
+              secondLevelSelect.innerHTML += `<option value="${subtype}">${subtype}</option>`;
+            });
+            secondLevelSelect.style.display = "inline-block";
+          }
+        });
+      }
+
+      // Add new medication to plan
+      function addNewMedication() {
+        const container = document.getElementById("newMeds-container");
+        const newGroup = document.createElement("div");
+        newGroup.className = "medication-group";
+
+        newGroup.innerHTML = `
+          <div class="medication-row">
+            <select class="medication-name" onchange="updateMedicationOptions(this)">
+              <option value="">Select Medication</option>
+                <option value="Metformin">Metformin</option>
+                <option value="Insulin">Insulin</option>
+                <option value="GLP-1 RA">GLP-1 RA</option>
+                <option value="SGLT2i">SGLT2 Inhibitors</option>
+                <option value="DPP-4i">DPP-4 Inhibitors</option>
+                <option value="Sulfonylurea">Sulfonylurea</option>
+                <option value="TZD">TZD (Thiazolidinediones)</option>
+                <option value="ARB">ARB (Angiotensin Receptor Blocker)</option>
+                <option value="ACEi">ACE Inhibitor</option>
+                <option value="CCB">Calcium Channel Blocker</option>
+                <option value="Beta Blocker">Beta Blocker</option>
+                <option value="Thiazide">Thiazide Diuretic</option>
+                <option value="Aspirin">Aspirin</option>
+                <option value="Clopidogrel">Clopidogrel</option>
+                <option value="Anti-Lipid">Anti-Lipid Medications</option>
+                <option value="Levothyroxine">Levothyroxine</option>
+                <option value="Other">Other</option></select
+              ><input
+                class="medication-other"
+                placeholder="Specify other"
+                style="display: none; width: 150px; margin-left: 5px"
+                type="text"
+              />
+              <div class="medication-subtype-container">
+                <select class="medication-subtype" style="display: none">
+                  <option value="">Select Type</option>
+                </select>
+              </div>
+              <input class="medication-dose" placeholder="Dose" type="text" />
+              <select class="medication-freq">
+                <option value="">Frequency</option>
+                <option value="Once daily">Once daily</option>
+                <option value="Twice daily">Twice daily</option>
+                <option value="Three times daily">Three times daily</option>
+                <option value="With meals">With meals</option>
+                <option value="At bedtime">At bedtime</option>
+                <option value="Every week">Every week</option>
+                <option value="Every 2 weeks">Every 2 weeks</option>
+                <option value="Not Tolerated">Not Tolerated</option>
+                <option value="patient Refuse">patient Refuse</option>
+                <option value="Other">Other</option>
+              </select>
+              <select class="medication-status">
+                <option value="Continue">Continue</option>
+                <option value="Discontinue">Discontinue</option>
+                <option value="Increase Dose">Increase Dose</option>
+                <option value="Decrease Dose">Decrease Dose</option>
+                <option value="Change Frequency">Change Frequency</option>
+                <option value="Start">Start</option>
+                <option value="patient Refuse">patient Refuse</option>
+              </select>
+              <textarea
+                class="medication-instruction"
+                placeholder="Medication instructions..."
+              ></textarea>
+              <input
+                class="levothyroxine-duration"
+                placeholder="Duration (e.g., 100mcg 5d/wk, 50mcg 2d/wk)"
+                style="width: 250px; display: none"
+                type="text"
+              />
+              <button
+                class="remove-med-btn"
+                onclick="removeNewMedication(this)"
+              >
+                Remove
+              </button>
+            </div>
+        `;
+
+        container.appendChild(newGroup);
+      }
+
+      // Toggle levothyroxine duration field
+      function toggleLevothyroxineDuration(select) {
+        const row = select.closest(".medication-row");
+        const name = row.querySelector(".medication-name").value;
+        const durationField = row.querySelector(".levothyroxine-duration");
+
+        if (name === "Levothyroxine") {
+          durationField.style.display = "inline-block";
+        } else {
+          durationField.style.display = "none";
+        }
+      }
+
+      function removeNewMedication(button) {
+        const container = document.getElementById("newMeds-container");
+        if (container.children.length > 1) {
+          button.closest(".medication-group").remove();
+        } else {
+          alert("At least one medication row must remain");
+        }
+      }
+
+      // Populate treatment plan with current medications
+      function populateFromCurrentMeds() {
+        const currentMeds = document.querySelectorAll(
+          "#medication-container .medication-group"
+        );
+        const newMedsContainer = document.getElementById("newMeds-container");
+
+        // Clear existing new medications
+        newMedsContainer.innerHTML = "";
+
+        currentMeds.forEach((med) => {
+          const name = med.querySelector(".medication-name").value;
+          if (!name) return;
+
+          addNewMedication();
+          const newMed = newMedsContainer.lastElementChild;
+
+          // Copy values
+          newMed.querySelector(".medication-name").value = name;
+          updateMedicationOptions(newMed.querySelector(".medication-name"));
+
+          const subtype = med.querySelector(".medication-subtype").value;
+          if (subtype) {
+            newMed.querySelector(".medication-subtype").value = subtype;
+          }
+
+          newMed.querySelector(".medication-dose").value =
+            med.querySelector(".medication-dose").value;
+          newMed.querySelector(".medication-freq").value =
+            med.querySelector(".medication-freq").value;
+
+          // Default to "Continue"
+          newMed.querySelector(".medication-status").value = "Continue";
+
+          // Handle levothyroxine duration field
+          if (name === "Levothyroxine") {
+            newMed.querySelector(".levothyroxine-duration").style.display =
+              "inline-block";
+          }
+        });
+      }
+
+      // Auto-calculate BMI
+      function calculateBMI() {
+        const weight = parseFloat(document.getElementById("weight").value);
+        const height = parseFloat(document.getElementById("height").value);
+
+        if (weight && height) {
+          // Convert height from cm to meters
+          const heightInMeters = height / 100;
+          const bmi = (weight / (heightInMeters * heightInMeters)).toFixed(1);
+          document.getElementById("bmi").value = bmi;
+
+          // Add BMI classification
+          let classification = "";
+          if (bmi < 18.5) classification = " (Underweight)";
+          else if (bmi >= 18.5 && bmi < 25) classification = " (Normal)";
+          else if (bmi >= 25 && bmi < 30) classification = " (Overweight)";
+          else classification = " (Obese)";
+
+          document.getElementById("bmiResult").textContent =
+            bmi + classification;
+        }
+      }
+
+      // Copy note to clipboard
+      function copyNote() {
+        const noteText = document.getElementById("progressNote");
+        noteText.select();
+        document.execCommand("copy");
+        alert("Note copied to clipboard!");
+      }
+
+      // Clear the entire form
+      function clearForm() {
+        if (confirm("Are you sure you want to clear all form data?")) {
+          document
+            .querySelectorAll(
+              'input[type="text"], input[type="number"], textarea'
+            )
+            .forEach((el) => (el.value = ""));
+          document
+            .querySelectorAll('input[type="checkbox"], input[type="radio"]')
+            .forEach((el) => (el.checked = false));
+          document
+            .querySelectorAll("select")
+            .forEach((el) => (el.selectedIndex = 0));
+
+          // Clear medications
+          const medContainer = document.getElementById("medication-container");
+          medContainer.innerHTML = `
+            <div class="medication-group">
+              <div class="medication-row">
+                <select class="medication-name" onchange="updateMedicationOptions(this)">
+                  <option value="">Select Medication</option>
+                  <option value="Metformin">Metformin</option>
+                  <option value="Insulin">Insulin</option>
+                  <option value="GLP-1 RA">GLP-1 RA</option>
+                  <option value="SGLT2i">SGLT2 Inhibitors</option>
+                  <option value="DPP-4i">DPP-4 Inhibitors</option>
+                  <option value="Sulfonylurea">Sulfonylurea</option>
+                  <option value="TZD">TZD (Thiazolidinediones)</option>
+                  <option value="ARB">ARB (Angiotensin Receptor Blocker)</option>
+                  <option value="ACEi">ACE Inhibitor</option>
+                  <option value="CCB">Calcium Channel Blocker</option>
+                  <option value="Beta Blocker">Beta Blocker</option>
+                  <option value="Thiazide">Thiazide Diuretic</option>
+                  <option value="Aspirin">Aspirin</option>
+                  <option value="Clopidogrel">Clopidogrel</option>
+                  <option value="Anti-Lipid">Anti-Lipid Medications</option>
+                  <option value="Levothyroxine">Levothyroxine</option>
+                  <option value="Other">Other</option>
+                </select>
+                
+                <div class="medication-subtype-container">
+                  <select class="medication-subtype" style="display: none;">
+                    <option value="">Select Type</option>
+                  </select>
+                </div>
+<textarea class="medication-instruction" placeholder="Medication instructions..."></textarea>
+                
+                <input type="text" class="medication-dose" placeholder="Dose">
+                
+                <select class="medication-freq">
+                  <option value="">Frequency</option>
+                  <option value="Once daily">Once daily</option>
+                  <option value="Twice daily">Twice daily</option>
+                  <option value="Three times daily">Three times daily</option>
+                  <option value="With meals">With meals</option>
+                  <option value="At bedtime">At bedtime</option>
+                  <option value="Every 2 weeks">Every 2 weeks</option>
+                  <option value="Not Tolerated">Not Tolerated</option>
+                  <option value="Other">Other</option>
+                </select>
+                
+                <button class="remove-med-btn" onclick="removeMedication(this)">
+                  Remove
+                </button>
+              </div>
+            </div>
+          `;
+
+          // Clear new medications
+          document.getElementById("newMeds-container").innerHTML = `
+            <div class="medication-group">
+              div class="medication-row">
+  <select class="medication-name" onchange="updateMedicationOptions(this)">
+                  <option value="">Select Medication</option>
+                  <option value="Metformin">Metformin</option>
+                  <option value="Insulin">Insulin</option>
+                  <option value="GLP-1 RA">GLP-1 RA</option>
+                  <option value="SGLT2i">SGLT2 Inhibitors</option>
+                  <option value="DPP-4i">DPP-4 Inhibitors</option>
+                  <option value="Sulfonylurea">Sulfonylurea</option>
+                  <option value="TZD">TZD (Thiazolidinediones)</option>
+                  <option value="ARB">ARB (Angiotensin Receptor Blocker)</option>
+                  <option value="ACEi">ACE Inhibitor</option>
+                  <option value="CCB">Calcium Channel Blocker</option>
+                  <option value="Beta Blocker">Beta Blocker</option>
+                  <option value="Thiazide">Thiazide Diuretic</option>
+                  <option value="Aspirin">Aspirin</option>
+                  <option value="Clopidogrel">Clopidogrel</option>
+                  <option value="Anti-Lipid">Anti-Lipid Medications</option>
+                  <option value="Levothyroxine">Levothyroxine</option>
+                  <option value="Other">Other</option>
+                </select>
+              </select>
+                <div class="medication-subtype-container">
+    <select class="medication-subtype" style="display: none;"></select>
+  </div>
+  <input class="medication-dose" placeholder="Dose" type="text">
+  <select class="medication-freq">
+    <select class="medication-freq">
+                  <option value="">Frequency</option>
+                  <option value="Once daily">Once daily</option>
+                  <option value="Twice daily">Twice daily</option>
+                  <option value="Three times daily">Three times daily</option>
+                  <option value="With meals">With meals</option>
+                  <option value="At bedtime">At bedtime</option>
+                  <option value="Every week">Every week</option>
+                  <option value="Every 2 weeks">Every 2 weeks</option>
+                  <option value="Not Tolerated">Not Tolerated</option>
+                  <option value="Other">Other</option>
+                </select>
+                <input type="text" class="medication-dose" placeholder="Dose">
+<textarea class="medication-instruction" placeholder="Medication instructions..."></textarea>
+                <select class="medication-status" onchange="toggleLevothyroxineDuration(this)">
+                  <option value="Continue">Continue</option>
+                  <option value="Discontinue">Discontinue</option>
+                  <option value="Increase Dose">Increase Dose</option>
+                  <option value="Decrease Dose">Decrease Dose</option>
+                  <option value="Change Frequency">Change Frequency</option>
+                  <option value="Start">Start</option>
+                  <option value="patient Refuse">patient Refuse</option>
+                </select>
+                <input
+                  type="text"
+                  class="levothyroxine-duration"
+                  placeholder="Duration (e.g., 100mcg 5d/wk, 50mcg 2d/wk)"
+                  style="width: 250px; display: none"
+                />
+                
+                <button class="remove-med-btn" onclick="removeNewMedication(this)">
+                  Remove
+                </button>
+              </div>
+            </div>
+          `;
+
+          // Clear family history
+          document.getElementById("familyHistoryContainer").innerHTML = `
+            <div class="family-member">
+              <select class="family-relation">
+                <option value="">Select family member</option>
+                <option value="Mother">Mother</option>
+                <option value="Father">Father</option>
+                <option value="Sibling">Sibling</option>
+                <option value="Grandparent">Grandparent</option>
+                <option value="Aunt/Uncle">Aunt/Uncle</option>
+                <option value="Child">Child</option>
+              </select>
+              <select class="family-diabetes-type">
+                <option value="">Type of diabetes</option>
+                <option value="Type 1">Type 1</option>
+                <option value="Type 2">Type 2</option>
+                <option value="GDM">GDM</option>
+                <option value="Other">Other</option>
+              </select>
+              <input type="text" class="family-age-diagnosis" placeholder="Age at diagnosis" style="width: 120px;">
+              <button class="remove-med-btn" onclick="removeFamilyMember(this)">
+                Remove
+              </button>
+            </div>
+          `;
+
+          // Reset calculated fields
+          document.getElementById("bmiResult").textContent = "-";
+          document.getElementById("bmi").value = "";
+          document.getElementById("egfr-result").textContent = "-";
+          document.getElementById("egfr").value = "";
+          document.getElementById("tddResult").textContent = "Not calculated";
+          document.getElementById("icrResult").textContent = "Not calculated";
+          document.getElementById("isfResult").textContent = "Not calculated";
+
+          // Reset tabs
+          document.getElementById("History").style.display = "block";
+          document.getElementById("Examination").style.display = "none";
+          document.getElementById("Investigations").style.display = "none";
+          document.getElementById("AssessmentPlan").style.display = "none";
+
+          const tablinks = document.getElementsByClassName("tablinks");
+          for (let i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(
+              " active",
+              ""
+            );
+          }
+          tablinks[0].className += " active";
+        }
+      }
+
+      function generateNote() {
+    let note = "";
+    
+    // History - formatted as a paragraph
+    const age = document.getElementById("patientAge").value || "Not specified";
+    const gender = document.getElementById("patientGender").value || "Not specified";
+    const duration = document.getElementById("diagnosisDuration").value || "Not specified";
+    const diabetesType = document.querySelector('input[name="diabetesType"]:checked')?.value;
+    let diabetesTypeText = "";
+
+    if (diabetesType === "MODY") {
+        const modySpec = document.getElementById("modySpecification").value;
+        diabetesTypeText = "MODY" + (modySpec ? ` (${modySpec})` : "");
+    } else if (diabetesType === "Other") {
+        const otherSpec = document.getElementById("diabetesTypeOther").value;
+        diabetesTypeText = otherSpec || "diabetes";
+    } else {
+        diabetesTypeText = diabetesType ? diabetesType + " diabetes" : "diabetes";
+    }
+
+    let historyParagraph = `${age} year old ${gender.toLowerCase()} patient, k/c/o ${diabetesTypeText} for ${duration}`;
+
+    // Other medical history
+    const otherHistory = [];
+    document.querySelectorAll(".otherHistory:checked").forEach((cb) => {
+        if (cb.value === "Other") {
+            otherHistory.push(document.getElementById("otherHistoryText").value);
+        } else {
+            otherHistory.push(cb.value);
+        }
+    });
+
+    if (otherHistory.length > 0) {
+        historyParagraph += `, with ${otherHistory.join(", ")}`;
+    }
+
+    // Female-specific details
+    if (gender === "Female") {
+        const femaleDetails = [];
+        if (document.getElementById("isSingle").checked) femaleDetails.push("Single");
+        if (document.getElementById("isMarried").checked) femaleDetails.push("Married");
+        if (document.getElementById("isPregnant").checked) femaleDetails.push("Pregnant");
+        if (document.getElementById("isLactating").checked) femaleDetails.push("Lactating");
+        if (document.getElementById("planningPregnancy").checked) femaleDetails.push("Planning Pregnancy");
+
+        if (femaleDetails.length > 0) {
+            historyParagraph += ` (${femaleDetails.join(", ")})`;
+        }
+    }
+
+    note += historyParagraph + ".\n";
+
+    // Diabetes History
+    if (document.getElementById("diabetesHistory").value) {
+        note += `Diabetes History: ${document.getElementById("diabetesHistory").value}\n`;
+    }
+
+    // Complications - organized by type with notes in brackets
+    const microvascularComplications = [];
+    const macrovascularComplications = [];
+    const otherComplications = [];
+    
+    document.querySelectorAll(".complication:not(#noComplicationsCheckbox):checked").forEach((cb) => {
+        const complication = cb.value;
+        const noteId = complication.toLowerCase().replace(/\s+/g, "") + "Note";
+        const note = document.getElementById(noteId)?.value || "";
+        
+        const complicationWithNote = note ? `${complication} (${note})` : complication;
+        
+        if (cb.classList.contains("micro")) {
+            microvascularComplications.push(complicationWithNote);
+        } else if (cb.classList.contains("macro")) {
+            macrovascularComplications.push(complicationWithNote);
+        } else {
+            otherComplications.push(complicationWithNote);
+        }
+    });
+
+    if (microvascularComplications.length > 0 || 
+        macrovascularComplications.length > 0 || 
+        otherComplications.length > 0) {
+        note += "Complications:\n";
+        
+        if (microvascularComplications.length > 0) {
+            note += `- Microvascular: ${microvascularComplications.join(", ")}\n`;
+        }
+        if (macrovascularComplications.length > 0) {
+            note += `- Macrovascular: ${macrovascularComplications.join(", ")}\n`;
+        }
+        if (otherComplications.length > 0) {
+            note += `- Other: ${otherComplications.join(", ")}\n`;
+        }
+    } else {
+        note += "No complications\n";
+    }
+
+   // Hypoglycemia History
+const hypoFrequency = document.querySelector('input[name="hypoFrequency"]:checked');
+const hypoSymptoms = document.querySelector('input[name="hypoSymptoms"]:checked');
+const hypoTiming = Array.from(document.querySelectorAll('.hypoTiming:checked')).map(cb => cb.value);
+
+if (hypoFrequency || hypoSymptoms || hypoTiming.length > 0) {
+    note += "Hypoglycemia History:\n";
+    
+    if (hypoFrequency) {
+        note += `- Frequency: ${hypoFrequency.value}\n`;
+    }
+    
+    if (hypoSymptoms) {
+        note += `- Symptoms: ${hypoSymptoms.value}\n`;
+    }
+    
+    if (hypoTiming.length > 0) {
+        note += `- Timing: ${hypoTiming.join(", ")}\n`;
+    }
+}
+
+    // Family History
+    const familyMembers = [];
+    document.querySelectorAll(".family-member").forEach((member) => {
+        const relation = member.querySelector(".family-relation").value;
+        const type = member.querySelector(".family-diabetes-type").value;
+        const age = member.querySelector(".family-age-diagnosis").value;
+
+        if (relation && type) {
+            familyMembers.push(`${relation} (${type}${age ? ` at ${age}y` : ""})`);
+        }
+    });
+
+    const familyHistoryDetails = document.getElementById("familyHistoryDetails").value;
+    note += "Family History: ";
+    if (familyMembers.length > 0) {
+        note += familyMembers.join(", ");
+        if (familyHistoryDetails) {
+            note += ". Additional details: " + familyHistoryDetails;
+        }
+    } else if (familyHistoryDetails) {
+        note += familyHistoryDetails;
+    } else {
+        note += "None";
+    }
+    note += "\n";
+
+    // Current Medications - now as a list
+    note += "Current Medications:\n";
+    const medGroups = document.querySelectorAll("#medication-container .medication-group");
+    let hasMeds = false;
+    
+    medGroups.forEach((group) => {
+        let name = group.querySelector(".medication-name").value;
+        if (!name) return;
+
+        if (name === "Other") {
+            const otherInput = group.querySelector(".medication-other");
+            if (otherInput?.value) name = otherInput.value;
+        }
+
+        let subtype = group.querySelector(".medication-subtype").value;
+        if (name === "Insulin" && subtype) {
+            const secondLevelSelect = group.querySelector(".medication-subtype-container select:nth-child(2)");
+            if (secondLevelSelect?.value) subtype = secondLevelSelect.value;
+        }
+        
+        const dose = group.querySelector(".medication-dose").value;
+        const freq = group.querySelector(".medication-freq").value;
+        const doseUnit = medicationDB[name]?.defaultDose || "";
+        
+        note += `- ${name}`;
+        if (subtype) note += ` (${subtype})`;
+        if (dose) note += ` ${dose}${doseUnit ? " " + doseUnit : ""}`;
+        if (freq) note += ` ${freq}`;
+        note += "\n";
+        hasMeds = true;
+    });
+    if (!hasMeds) note += "- None\n";
+
+    // Insulin Therapy Details (only for Type 1 diabetes)
+if (diabetesType === "Type 1") {
+    note += "Insulin Therapy:\n";
+    
+    const carbCounting = document.querySelector('input[name="carbCounting"]:checked');
+    if (carbCounting) note += `- Carb Counting: ${carbCounting.value}\n`;
+    
+    const tdd = document.getElementById("tddResult").textContent.replace("Not calculated", "N/A");
+    const icr = document.getElementById("icrResult").textContent.replace("Not calculated", "N/A");
+    const isf = document.getElementById("isfResult").textContent.replace("Not calculated", "N/A");
+    
+    // Format parameters as requested: TDD: 40 u, ICR: 1:12, ISF: 45mg/dl per unit
+    note += `- Parameters: ${tdd.includes("units") ? "TDD: " + tdd.replace(" units", " u") : "TDD: " + tdd}`;
+    note += `, ${icr.includes("1:") ? "ICR: " + icr : "ICR: " + icr}`;
+    note += `, ${isf.includes("mg/dL") ? "ISF: " + isf.replace(" mg/dL per unit", "mg/dl per unit") : "ISF: " + isf}\n`;
+    
+    const injectionTiming = document.querySelector('input[name="injectionTiming"]:checked');
+    if (injectionTiming) note += `- Injection Timing: ${injectionTiming.value}\n`;
+    
+    const technique = document.getElementById("injectionTechnique").value;
+    if (technique) note += `- Technique: ${technique}\n`;
+}
+
+    // SMBG Results
+const smbgDone = document.querySelector('input[name="smbgDone"]:checked');
+if (smbgDone) {
+    note += "SMBG: ";
+    if (smbgDone.value === "Yes") {
+        note += "\n";
+        const fbsRange = document.getElementById("fbsRange").value;
+        if (fbsRange) note += `- Fasting: ${fbsRange}\n`;
+        
+        const postBreakfast = document.getElementById("postBreakfastRange").value;
+        if (postBreakfast) note += `- Post-breakfast: ${postBreakfast}\n`;
+        
+        const postLunch = document.getElementById("postLunchRange").value;
+        if (postLunch) note += `- Post-lunch: ${postLunch}\n`;
+        
+        const postDinner = document.getElementById("postDinnerRange").value;
+        if (postDinner) note += `- Post-dinner: ${postDinner}\n`;
+    } else {
+        note += "Not done\n";
+    }
+}
+
+    // Lifestyle History
+    const lifestyleHistory = [];
+    const smokingStatus = document.querySelector('input[name="smokingStatus"]:checked');
+    if (smokingStatus) lifestyleHistory.push(`Smoking: ${smokingStatus.value}`);
+
+    const treatmentAdherence = document.querySelector('input[name="treatmentAdherence"]:checked');
+    if (treatmentAdherence) lifestyleHistory.push(`Adherence: ${treatmentAdherence.value}`);
+
+    const diet = document.querySelector('input[name="diet"]:checked');
+    if (diet) lifestyleHistory.push(`Diet: ${diet.value}`);
+
+    const physicalActivity = document.querySelector('input[name="physicalActivity"]:checked');
+    if (physicalActivity) lifestyleHistory.push(`Activity: ${physicalActivity.value}`);
+
+    if (lifestyleHistory.length > 0) {
+        note += `Lifestyle: ${lifestyleHistory.join(", ")}\n`;
+    }
+
+    // Screenings
+    const screenings = [];
+    const footScreening = document.querySelector('input[name="footScreening"]:checked');
+    if (footScreening) screenings.push(`Foot: ${footScreening.value}`);
+
+    const retinaScreening = document.querySelector('input[name="retinaScreening"]:checked');
+    if (retinaScreening) screenings.push(`Retina: ${retinaScreening.value}`);
+
+    const kidneyScreening = document.querySelector('input[name="kidneyScreening"]:checked');
+    if (kidneyScreening) screenings.push(`Kidney: ${kidneyScreening.value}`);
+
+    if (screenings.length > 0) {
+        note += `Screenings: ${screenings.join(", ")}\n`;
+    }
+
+    // Vaccinations
+    const vaccines = [];
+    document.querySelectorAll(".vaccine:checked").forEach((cb) => {
+        if (cb.value === "Herpes Zoster") {
+            const dose = document.getElementById("herpesZosterDose").value;
+            vaccines.push(`${cb.value} ${dose}`);
+        } else {
+            vaccines.push(cb.value);
+        }
+    });
+
+    if (vaccines.length > 0) {
+        note += `Vaccinations: ${vaccines.join(", ")}\n`;
+    }
+
+    // Examination (O/E)
+    note += "\nO/E:\n";
+    const examItems = [];
+    if (document.getElementById("weight").value) examItems.push(`Wt: ${document.getElementById("weight").value}kg`);
+    if (document.getElementById("height").value) examItems.push(`Ht: ${document.getElementById("height").value}cm`);
+    if (document.getElementById("bmi").value) examItems.push(`BMI: ${document.getElementById("bmi").value}`);
+    if (document.getElementById("bp").value) examItems.push(`BP: ${document.getElementById("bp").value}`);
+    note += examItems.join(", ") + "\n";
+
+  
+    // Labs
+    note += "\nLabs:\n";
+
+    // Standard Labs
+    const hba1c = document.getElementById("hba1c").value;
+    note += `- HbA1c: ${hba1c || "N/A"}%\n`;
+
+    const fbs = document.getElementById("fbs").value;
+    const fbsUnit = document.getElementById("fbs-unit").value;
+    const fbsConverted = document.getElementById("fbs-converted-value").value;
+    note += `- FBS: ${fbs || "N/A"} ${fbsUnit}${fbsConverted ? ` (${fbsConverted})` : ""}\n`;
+
+    const creatinine = document.getElementById("creatinine").value;
+    const creatinineUnit = document.getElementById("creatinine-unit").value;
+    const creatinineConverted = document.getElementById("creatinine-converted-value").value;
+    note += `- Creatinine: ${creatinine || "N/A"} ${creatinineUnit}${creatinineConverted ? ` (${creatinineConverted})` : ""}\n`;
+
+    const egfr = document.getElementById("egfr").value;
+    note += `- eGFR: ${egfr || "N/A"} mL/min/1.73m²\n`;
+
+    const acr = document.getElementById("acr").value;
+    const acrUnit = document.getElementById("acr-unit").value;
+    const acrConverted = document.getElementById("acr-converted-value").value;
+    note += `- ACR: ${acr || "N/A"} ${acrUnit}${acrConverted ? ` (${acrConverted})` : ""}\n`;
+
+    // Liver Function Tests
+    const alt = document.getElementById("alt").value;
+    const ast = document.getElementById("ast").value;
+    if (alt || ast) {
+        note += `- Liver Function:\n`;
+        if (alt) note += `  - ALT: ${alt} U/L\n`;
+        if (ast) note += `  - AST: ${ast} U/L\n`;
+        
+        // Include FIB-4 if calculated
+        const fib4Score = document.getElementById("fib4-score").textContent;
+        if (fib4Score && fib4Score !== "-") {
+            const fib4Interpretation = document.getElementById("fib4-interpretation").textContent;
+            note += `  - FIB-4: ${fib4Score} (${fib4Interpretation})\n`;
+        }
+    }
+
+    // Thyroid Function Tests
+    const tsh = document.getElementById("tsh").value;
+    const ft4 = document.getElementById("ft4").value;
+    const ft3 = document.getElementById("ft3").value;
+    if (tsh || ft4 || ft3) {
+        note += `- Thyroid Function:\n`;
+        if (tsh) note += `  - TSH: ${tsh} mIU/L\n`;
+        if (ft4) {
+            const ft4Unit = document.getElementById("ft4-unit").value;
+            const ft4Converted = document.getElementById("ft4-converted").textContent;
+            note += `  - FT4: ${ft4} ${ft4Unit}${ft4Converted ? ` (${ft4Converted})` : ""}\n`;
+        }
+        if (ft3) {
+            const ft3Unit = document.getElementById("ft3-unit").value;
+            const ft3Converted = document.getElementById("ft3-converted").textContent;
+            note += `  - FT3: ${ft3} ${ft3Unit}${ft3Converted ? ` (${ft3Converted})` : ""}\n`;
+        }
+    }
+
+    // Lipid Profile
+    const ldl = document.getElementById("ldl").value;
+    const hdl = document.getElementById("hdl").value;
+    const tg = document.getElementById("tg").value;
+    const totalChol = document.getElementById("totalChol").value;
+    
+    if (ldl || hdl || tg || totalChol) {
+        note += `- Lipid Profile:\n`;
+        if (ldl) {
+            const ldlUnit = document.getElementById("ldl-unit").value;
+            const ldlConverted = document.getElementById("ldl-converted-value").value;
+            note += `  - LDL: ${ldl} ${ldlUnit}${ldlConverted ? ` (${ldlConverted})` : ""}\n`;
+        }
+        if (hdl) {
+            const hdlUnit = document.getElementById("hdl-unit").value;
+            const hdlConverted = document.getElementById("hdl-converted-value").value;
+            note += `  - HDL: ${hdl} ${hdlUnit}${hdlConverted ? ` (${hdlConverted})` : ""}\n`;
+        }
+        if (tg) {
+            const tgUnit = document.getElementById("tg-unit").value;
+            const tgConverted = document.getElementById("tg-converted-value").value;
+            note += `  - TG: ${tg} ${tgUnit}${tgConverted ? ` (${tgConverted})` : ""}\n`;
+        }
+        if (totalChol) {
+            const totalCholUnit = document.getElementById("totalChol-unit").value;
+            const totalCholConverted = document.getElementById("totalChol-converted-value").value;
+            note += `  - Total Cholesterol: ${totalChol} ${totalCholUnit}${totalCholConverted ? ` (${totalCholConverted})` : ""}\n`;
+        }
+    }
+
+    // Additional Labs (only show if entered)
+    const additionalLabs = [];
+    document.querySelectorAll(".lab-group").forEach((group) => {
+        const name = group.querySelector(".lab-name").value;
+        const result = group.querySelector(".lab-result").value;
+        const units = group.querySelector(".lab-units").value;
+        
+        if (name && result) {
+            additionalLabs.push(`${name}: ${result} ${units || ''}`.trim());
+        }
+    });
+
+    if (additionalLabs.length > 0) {
+        note += `- Additional Labs:\n`;
+        note += `  - ${additionalLabs.join("\n  - ")}\n`;
+    }
+
+    // Assessment and Plan (A/P)
+    note += "\nA/P:\n";
+    const glycemicStatus = document.querySelector('input[name="glycemicStatus"]:checked');
+    if (glycemicStatus) note += `Glycemic Status: ${glycemicStatus.value}\n`;
+
+    // Lifestyle - Only include if there are checked options
+    const lifestyle = [];
+    document.querySelectorAll(".lifestyle:checked").forEach((cb) => {
+        if (cb.value === "Other") {
+            lifestyle.push(document.getElementById("lifestyleOther").value);
+        } else {
+            lifestyle.push(cb.value);
+        }
+    });
+    
+    if (lifestyle.length > 0) {
+        note += `Lifestyle Recommendations: ${lifestyle.join(", ")}\n`;
+    }
+
+    // Doctor Recommendations
+    if (document.getElementById("doctorRecommendations").value) {
+        note += `Notes: ${document.getElementById("doctorRecommendations").value}\n`;
+    }
+
+    // Medications Plan - as a list
+    note += "Plan Medications:\n";
+    const newMedGroups = document.querySelectorAll("#newMeds-container .medication-group");
+    let hasNewMeds = false;
+    
+    newMedGroups.forEach((group) => {
+        let name = group.querySelector(".medication-name").value;
+        if (!name) return;
+
+        if (name === "Other") {
+            const otherInput = group.querySelector(".medication-other");
+            if (otherInput?.value) name = otherInput.value;
+        }
+
+        let subtype = group.querySelector(".medication-subtype").value;
+        if (name === "Insulin" && subtype) {
+            const secondLevelSelect = group.querySelector(".medication-subtype-container select:nth-child(2)");
+            if (secondLevelSelect?.value) subtype = secondLevelSelect.value;
+        }
+        
+        const dose = group.querySelector(".medication-dose").value;
+        const freq = group.querySelector(".medication-freq").value;
+        const status = group.querySelector(".medication-status").value;
+        const doseUnit = medicationDB[name]?.defaultDose || "";
+        
+        note += `- ${status} ${name}`;
+        if (subtype) note += ` (${subtype})`;
+        if (dose) note += ` ${dose}${doseUnit ? " " + doseUnit : ""}`;
+        if (freq) note += ` ${freq}`;
+        note += "\n";
+        hasNewMeds = true;
+    });
+    
+    if (!hasNewMeds) note += "- No medication changes\n";
+
+    // Referrals
+    const referrals = [];
+    document.querySelectorAll(".referral:checked").forEach((cb) => {
+        referrals.push(cb.value);
+    });
+    if (referrals.length > 0) note += `${referrals.join(", ")}\n`;
+
+    // Educator Instructions
+    const educatorInstructions = [];
+    document.querySelectorAll(".educatorInstruction:checked").forEach((cb) => {
+        educatorInstructions.push(cb.value);
+    });
+    if (educatorInstructions.length > 0) {
+        note += `\nEducator Instructions:\n- ${educatorInstructions.join("\n- ")}\n`;
+    }
+
+    // Nutritionist Instructions
+    const nutritionistInstructions = [];
+    document.querySelectorAll(".nutritionistInstruction:checked").forEach((cb) => {
+        nutritionistInstructions.push(cb.value);
+    });
+    if (nutritionistInstructions.length > 0) {
+        note += `\nNutritionist Instructions:\n- ${nutritionistInstructions.join("\n- ")}\n`;
+    }
+
+    document.getElementById("progressNote").value = note;
+}
+
+      // Add event listeners for diabetes type changes
+      document.querySelectorAll(".diabetesType").forEach((checkbox) => {
+        checkbox.addEventListener("change", toggleInsulinTherapy);
+      });
+
+      // Add event listeners for insulin medication changes
+      document
+        .getElementById("medication-container")
+        .addEventListener("change", function (e) {
+          if (
+            e.target.classList.contains("medication-name") ||
+            e.target.classList.contains("medication-dose") ||
+            e.target.classList.contains("medication-freq")
+          ) {
+            calculateTDD();
+          }
+        });
+
+      // Add event listeners for SMBG and CGM Done/Not Done
+      document.querySelectorAll('input[name="smbgDone"]').forEach((radio) => {
+        radio.addEventListener("change", function () {
+          document.getElementById("smbgFields").style.display =
+            this.value === "Yes" ? "block" : "none";
+        });
+      });
+
+      document.querySelectorAll('input[name="cgmDone"]').forEach((radio) => {
+        radio.addEventListener("change", function () {
+          document.getElementById("cgmFields").style.display =
+            this.value === "Yes" ? "block" : "none";
+        });
+      });
+
+      // Initialize display based on default values
+      document.getElementById("smbgFields").style.display = "none";
+      document.getElementById("cgmFields").style.display = "none";
+
+      // Initialize complication state on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        const noComplicationsCheckbox = document.getElementById(
+          "noComplicationsCheckbox"
+        );
+        if (noComplicationsCheckbox.checked) {
+          toggleComplications(noComplicationsCheckbox);
+        }
+      });
+
+     
+
+      function convertACRUnits() {
+        const acr = parseFloat(document.getElementById("acr").value);
+        const unit = document.getElementById("acr-unit").value;
+
+        if (!acr) {
+          document.getElementById("acr-converted").textContent = "";
+          return;
+        }
+
+        if (unit === "mg/mmol") {
+          document.getElementById("acr-converted").textContent =
+            (acr * 8.84).toFixed(1) + " mg/g";
+        } else {
+          document.getElementById("acr-converted").textContent =
+            (acr / 8.84).toFixed(1) + " mg/mmol";
+        }
+        updateACRCategory();
+      }
+
+      // Update the glucose conversion function
+      function convertGlucoseUnits() {
+  const glucose = parseFloat(document.getElementById("fbs").value);
+  const unit = document.getElementById("fbs-unit").value;
+  const conversionSpan = document.getElementById("fbs-converted");
+  
+  if (!glucose) {
+    conversionSpan.textContent = "";
+    document.getElementById("fbs-converted-value").value = "";
+    return;
+  }
+
+  if (unit === "mmol/L") {
+    const converted = (glucose * 18).toFixed(0);
+    conversionSpan.textContent = converted + " mg/dL";
+    document.getElementById("fbs-converted-value").value = converted + " mg/dL";
+  } else {
+    const converted = (glucose / 18).toFixed(1);
+    conversionSpan.textContent = converted + " mmol/L";
+    document.getElementById("fbs-converted-value").value = converted + " mmol/L";
+  }
+}
+
+      // Add automatic conversion on input
+      document
+        .getElementById("fbs")
+        .addEventListener("input", convertGlucoseUnits);
+      document.getElementById("acr").addEventListener("input", convertACRUnits);
+
+      function convertCreatinineUnits() {
+  const creatinine = parseFloat(document.getElementById("creatinine").value);
+  const unit = document.getElementById("creatinine-unit").value;
+  const conversionSpan = document.getElementById("creatinine-converted");
+  
+  if (!creatinine) {
+    conversionSpan.textContent = "";
+    document.getElementById("creatinine-converted-value").value = "";
+    calculateEGFR();
+    return;
+  }
+
+  if (unit === "μmol/L") {
+    const converted = (creatinine / 88.4).toFixed(2);
+    conversionSpan.textContent = converted + " mg/dL";
+    document.getElementById("creatinine-converted-value").value = converted + " mg/dL";
+  } else {
+    const converted = (creatinine * 88.4).toFixed(0);
+    conversionSpan.textContent = converted + " μmol/L";
+    document.getElementById("creatinine-converted-value").value = converted + " μmol/L";
+  }
+  calculateEGFR();
+}
+
+      // Add real-time conversion
+      document
+        .getElementById("creatinine")
+        .addEventListener("input", function () {
+          convertCreatinineUnits();
+          calculateEGFR();
+        });
+      function calculateFIB4() {
+        // Get values
+        const age =
+          document.getElementById("fib4-age").value ||
+          document.getElementById("patientAge").value;
+        const ast = parseFloat(document.getElementById("ast").value);
+        const alt = parseFloat(document.getElementById("alt").value);
+        const platelets = parseFloat(
+          document.getElementById("platelets").value ||
+            document.getElementById("platelet").value
+        ); // Supports both locations
+
+        // Auto-fill age if not specified
+        if (
+          !document.getElementById("fib4-age").value &&
+          document.getElementById("patientAge").value
+        ) {
+          document.getElementById("fib4-age").value =
+            document.getElementById("patientAge").value;
+        }
+
+        // Calculate if all values exist
+        if (age && ast && platelets) {
+          const fib4 = (age * ast) / (platelets * Math.sqrt(alt || 1)); // Handle missing ALT
+          const roundedFib4 = Math.round(fib4 * 100) / 100; // Round to 2 decimals
+
+          // Display score
+          document.getElementById("fib4-score").textContent = roundedFib4;
+
+          // Interpretation
+          let interpretation = "";
+          if (age < 65) {
+            interpretation =
+              fib4 < 1.3
+                ? "Low risk"
+                : fib4 < 2.67
+                ? "Intermediate risk"
+                : "High risk";
+          } else {
+            interpretation = fib4 < 2.0 ? "Low risk" : "High risk";
+          }
+          document.getElementById("fib4-interpretation").textContent =
+            interpretation;
+          document.getElementById("fib4-interpretation").style.color =
+            interpretation.includes("High")
+              ? "#d32f2f"
+              : interpretation.includes("Intermediate")
+              ? "#ff9800"
+              : "#4caf50";
+        } else {
+          document.getElementById("fib4-score").textContent = "-";
+          document.getElementById("fib4-interpretation").textContent = "";
+        }
+      }
+
+      // Initialize on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        // Auto-calculate when liver values change
+        document.getElementById("alt").addEventListener("input", calculateFIB4);
+        document.getElementById("ast").addEventListener("input", calculateFIB4);
+        document
+          .getElementById("platelets")
+          .addEventListener("input", calculateFIB4);
+        document
+          .getElementById("platelet")
+          .addEventListener("input", calculateFIB4);
+        document
+          .getElementById("fib4-age")
+          .addEventListener("input", calculateFIB4);
+
+        // Auto-fill age if patient age exists
+        if (document.getElementById("patientAge").value) {
+          document.getElementById("fib4-age").value =
+            document.getElementById("patientAge").value;
+        }
+      });
+
+      document.querySelectorAll(".medication-name").forEach((select) => {
+        select.addEventListener("change", function () {
+          const otherInput =
+            this.parentElement.querySelector(".medication-other");
+          if (this.value === "Other") {
+            if (otherInput) otherInput.style.display = "inline-block";
+          } else {
+            if (otherInput) {
+              otherInput.style.display = "none";
+              otherInput.value = "";
+            }
+          }
+        });
+      });
+
+      // NEW CODE: Show/hide "Other" medication input
+      document.querySelectorAll(".medication-name").forEach((select) => {
+        select.addEventListener("change", function () {
+          const row = this.closest(".medication-row");
+          const otherInput = row.querySelector(".medication-other");
+          otherInput.style.display =
+            this.value === "Other" ? "inline-block" : "none";
+
+          
+          
+        });
+      });
+
+      function addLabTest() {
+  const container = document.getElementById("additionalLabsContainer");
+  const labGroup = document.createElement("div");
+  labGroup.className = "lab-group";
+  
+  labGroup.innerHTML = `
+    <div class="lab-row">
+      <input type="text" class="lab-name" placeholder="Lab Test Name">
+      <input type="text" class="lab-result" placeholder="Result">
+      <input type="text" class="lab-units" placeholder="Units">
+      <button class="remove-med-btn" onclick="removeLabTest(this)">Remove</button>
+    </div>
+  `;
+  
+  container.appendChild(labGroup);
+}
+
+function removeLabTest(button) {
+  const container = document.getElementById("additionalLabsContainer");
+  if (container.children.length > 1 || 
+      confirm("This is the last lab test. Remove it?")) {
+    button.closest(".lab-group").remove();
+  }
+}
+
+// Lipid unit conversion function
+function convertLipidUnits(lipidType) {
+  const value = parseFloat(document.getElementById(lipidType).value);
+  const unit = document.getElementById(`${lipidType}-unit`).value;
+  const conversionSpan = document.getElementById(`${lipidType}-converted`);
+  
+  if (!value) {
+    conversionSpan.textContent = "";
+    document.getElementById(`${lipidType}-converted-value`).value = "";
+    return;
+  }
+
+  // Conversion factors
+  const factors = {
+    ldl: 38.67,
+    hdl: 38.67,
+    tg: 88.57,
+    totalChol: 38.67
+  };
+
+  if (unit === "mmol/L") {
+    const converted = (value * factors[lipidType]).toFixed(0);
+    conversionSpan.textContent = `${converted} mg/dL`;
+    document.getElementById(`${lipidType}-converted-value`).value = `${converted} mg/dL`;
+  } else {
+    const converted = (value / factors[lipidType]).toFixed(2);
+    conversionSpan.textContent = `${converted} mmol/L`;
+    document.getElementById(`${lipidType}-converted-value`).value = `${converted} mmol/L`;
+  }
+}
+
+ // Tab navigation system
+const tabs = [
+  { id: 'History', name: 'History' },
+  { id: 'Examination', name: 'Examination' },
+  { id: 'Investigations', name: 'Investigations' },
+  { id: 'AssessmentPlan', name: 'Assessment & Plan' }
+];
+
+let currentTabIndex = 0;
+
+// Initialize tabs
+function initTabs() {
+  // Set up tab button click handlers
+  tabs.forEach((tab, index) => {
+    const button = document.querySelector(`.tablinks[onclick*="${tab.id}"]`);
+    if (button) {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentTabIndex = index;
+        showTab(currentTabIndex);
+      });
+    }
+  });
+  
+  // Set up Next/Back buttons
+  document.querySelector('.nav-button.next').addEventListener('click', nextTab);
+  document.querySelector('.nav-button.prev').addEventListener('click', prevTab);
+  
+  // Show initial tab
+  showTab(currentTabIndex);
+}
+
+function showTab(index) {
+  // Validate index
+  currentTabIndex = Math.max(0, Math.min(index, tabs.length - 1));
+  
+  // Hide all tabs and remove active class
+  document.querySelectorAll('.tabcontent').forEach(tab => {
+    tab.style.display = 'none';
+  });
+  document.querySelectorAll('.tablinks').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  // Show selected tab
+  const tab = document.getElementById(tabs[currentTabIndex].id);
+  if (tab) {
+    tab.style.display = 'block';
+  }
+  
+  // Update active tab button
+  const activeButton = document.querySelector(`.tablinks[onclick*="${tabs[currentTabIndex].id}"]`);
+  if (activeButton) {
+    activeButton.classList.add('active');
+  }
+  
+  // Update navigation buttons
+  updateNavButtons();
+  window.scrollTo(0, 0);
+}
+
+function nextTab() {
+  if (currentTabIndex < tabs.length - 1) {
+    showTab(currentTabIndex + 1);
+  }
+}
+
+function prevTab() {
+  if (currentTabIndex > 0) {
+    showTab(currentTabIndex - 1);
+  }
+}
+
+function updateNavButtons() {
+  const prevButton = document.querySelector('.nav-button.prev');
+  const nextButton = document.querySelector('.nav-button.next');
+  
+  // Update button visibility
+  prevButton.style.display = currentTabIndex <= 0 ? 'none' : 'block';
+  nextButton.style.display = currentTabIndex >= tabs.length - 1 ? 'none' : 'block';
+  
+  // Update button disabled state (optional visual feedback)
+  prevButton.disabled = currentTabIndex <= 0;
+  nextButton.disabled = currentTabIndex >= tabs.length - 1;
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', initTabs);
+    </script>
+  </body>
+</html>
